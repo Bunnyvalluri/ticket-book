@@ -1,0 +1,706 @@
+// Prisma Schema — CineMax Movie Ticket Booking Platform
+// Production-grade normalized PostgreSQL schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================
+// ENUMS
+// ============================
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+  PENDING_VERIFICATION
+}
+
+enum MovieStatus {
+  NOW_SHOWING
+  COMING_SOON
+  ARCHIVED
+}
+
+enum SeatType {
+  SILVER
+  GOLD
+  PREMIUM
+  PLATINUM
+  VIP
+  RECLINER
+  COUPLE
+  WHEELCHAIR
+}
+
+enum SeatStatus {
+  AVAILABLE
+  LOCKED
+  BOOKED
+  MAINTENANCE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NET_BANKING
+  WALLET
+  CASH
+}
+
+enum ShowFormat {
+  TWO_D
+  THREE_D
+  IMAX
+  IMAX_3D
+  DOLBY_ATMOS
+  FOUR_DX
+  SCREENX
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  SHOW_REMINDER
+  OFFER
+  SYSTEM
+}
+
+enum CouponType {
+  PERCENTAGE
+  FLAT
+  BUY_ONE_GET_ONE
+  FREE_FOOD
+}
+
+enum CouponStatus {
+  ACTIVE
+  EXPIRED
+  DISABLED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+// ============================
+// USER MANAGEMENT
+// ============================
+
+model User {
+  id                String     @id @default(uuid())
+  email             String     @unique
+  passwordHash      String?
+  firstName         String
+  lastName          String
+  phone             String?    @unique
+  dateOfBirth       DateTime?
+  gender            String?
+  avatarUrl         String?
+  role              UserRole   @default(CUSTOMER)
+  status            UserStatus @default(PENDING_VERIFICATION)
+  isEmailVerified   Boolean    @default(false)
+  googleId          String?    @unique
+  googleAccessToken String?
+  twoFactorEnabled  Boolean    @default(false)
+  twoFactorSecret   String?
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  deletedAt         DateTime?
+
+  // Relations
+  refreshTokens     RefreshToken[]
+  emailVerifications EmailVerification[]
+  passwordResets    PasswordReset[]
+  bookings          Booking[]
+  reviews           Review[]
+  ratings           Rating[]
+  notifications     Notification[]
+  wishlist          Wishlist[]
+  favorites         Favorite[]
+  auditLogs         AuditLog[]
+  savedAddresses    SavedAddress[]
+  notificationSettings NotificationSettings?
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  isRevoked   Boolean  @default(false)
+  userAgent   String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+model EmailVerification {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("email_verifications")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("password_resets")
+}
+
+model SavedAddress {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String   // Home, Work, etc.
+  street    String
+  city      String
+  state     String
+  pincode   String
+  country   String   @default("India")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("saved_addresses")
+}
+
+model NotificationSettings {
+  id                String  @id @default(uuid())
+  userId            String  @unique
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailBooking      Boolean @default(true)
+  emailOffers       Boolean @default(true)
+  emailReminders    Boolean @default(true)
+  pushBooking       Boolean @default(true)
+  pushOffers        Boolean @default(false)
+  pushReminders     Boolean @default(true)
+  smsBooking        Boolean @default(false)
+  smsOffers         Boolean @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("notification_settings")
+}
+
+// ============================
+// MOVIE CATALOG
+// ============================
+
+model Genre {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  iconUrl     String?
+  colorHex    String?
+  createdAt   DateTime @default(now())
+  movies      MovieGenre[]
+
+  @@map("genres")
+}
+
+model Language {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  code      String   @unique  // en, hi, te, ta, etc.
+  nativeName String?
+  createdAt DateTime @default(now())
+  movieLanguages MovieLanguage[]
+  shows     Show[]
+
+  @@map("languages")
+}
+
+model Movie {
+  id              String      @id @default(uuid())
+  title           String
+  slug            String      @unique
+  synopsis        String?
+  tagline         String?
+  posterUrl       String?
+  bannerUrl       String?
+  trailerUrl      String?
+  trailerThumbnail String?
+  duration        Int         // minutes
+  releaseDate     DateTime?
+  endDate         DateTime?
+  imdbRating      Float?      @default(0)
+  imdbId          String?     @unique
+  status          MovieStatus @default(COMING_SOON)
+  isActive        Boolean     @default(true)
+  isFeatured      Boolean     @default(false)
+  isTrending      Boolean     @default(false)
+  ageRating       String?     // U, U/A, A, S
+  country         String?
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  // Relations
+  genres          MovieGenre[]
+  languages       MovieLanguage[]
+  cast            CastMember[]
+  crew            CrewMember[]
+  shows           Show[]
+  reviews         Review[]
+  ratings         Rating[]
+  gallery         MovieGallery[]
+  wishlist        Wishlist[]
+  favorites       Favorite[]
+
+  @@map("movies")
+}
+
+model MovieGenre {
+  movieId   String
+  genreId   String
+  movie     Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre     Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, genreId])
+  @@map("movie_genres")
+}
+
+model MovieLanguage {
+  movieId    String
+  languageId String
+  movie      Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, languageId])
+  @@map("movie_languages")
+}
+
+model CastMember {
+  id          String   @id @default(uuid())
+  movieId     String
+  movie       Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  name        String
+  character   String?
+  photoUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@map("cast_members")
+}
+
+model CrewMember {
+  id        String   @id @default(uuid())
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  name      String
+  role      String   // Director, Producer, Cinematographer, etc.
+  photoUrl  String?
+  createdAt DateTime @default(now())
+
+  @@map("crew_members")
+}
+
+model MovieGallery {
+  id        String   @id @default(uuid())
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  imageUrl  String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("movie_gallery")
+}
+
+// ============================
+// THEATRE & SCREENS
+// ============================
+
+model Theatre {
+  id           String    @id @default(uuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  address      String
+  city         String
+  state        String
+  pincode      String
+  country      String    @default("India")
+  latitude     Float?
+  longitude    Float?
+  phone        String?
+  email        String?
+  logoUrl      String?
+  imageUrl     String?
+  isActive     Boolean   @default(true)
+  hasParking   Boolean   @default(false)
+  hasFoodCourt Boolean   @default(false)
+  hasAtm       Boolean   @default(false)
+  hasWifi      Boolean   @default(false)
+  hasWheelchair Boolean  @default(false)
+  openingTime  String    @default("09:00")
+  closingTime  String    @default("23:59")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  screens      Screen[]
+
+  @@map("theatres")
+}
+
+model Screen {
+  id          String     @id @default(uuid())
+  theatreId   String
+  theatre     Theatre    @relation(fields: [theatreId], references: [id], onDelete: Cascade)
+  name        String
+  format      ShowFormat @default(TWO_D)
+  totalSeats  Int
+  rows        Int
+  columns     Int
+  isActive    Boolean    @default(true)
+  hasImax     Boolean    @default(false)
+  has3D       Boolean    @default(false)
+  hasDolby    Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  seats       Seat[]
+  shows       Show[]
+
+  @@map("screens")
+}
+
+model Seat {
+  id          String     @id @default(uuid())
+  screenId    String
+  screen      Screen     @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  row         String     // A, B, C...
+  column      Int        // 1, 2, 3...
+  label       String     // A1, A2, B1...
+  seatType    SeatType   @default(SILVER)
+  isActive    Boolean    @default(true)
+  isAisle     Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+
+  bookingSeats BookingSeat[]
+  seatPricings SeatPricing[]
+  seatLocks    SeatLock[]
+
+  @@unique([screenId, row, column])
+  @@map("seats")
+}
+
+// ============================
+// SHOWS
+// ============================
+
+model Show {
+  id              String     @id @default(uuid())
+  movieId         String
+  movie           Movie      @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  screenId        String
+  screen          Screen     @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  languageId      String
+  language        Language   @relation(fields: [languageId], references: [id])
+  startTime       DateTime
+  endTime         DateTime
+  format          ShowFormat @default(TWO_D)
+  hasSubtitles    Boolean    @default(false)
+  subtitleLanguage String?
+  isActive        Boolean    @default(true)
+  isSoldOut       Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  seatPricings    SeatPricing[]
+  bookings        Booking[]
+  seatLocks       SeatLock[]
+
+  @@map("shows")
+}
+
+model SeatPricing {
+  id           String   @id @default(uuid())
+  showId       String
+  show         Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  seatId       String
+  seat         Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  price        Float
+  convenienceFee Float  @default(0)
+  gst          Float    @default(18)
+  createdAt    DateTime @default(now())
+
+  @@unique([showId, seatId])
+  @@map("seat_pricings")
+}
+
+model SeatLock {
+  id          String   @id @default(uuid())
+  showId      String
+  show        Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  seatId      String
+  seat        Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  userId      String?
+  sessionId   String
+  expiresAt   DateTime
+  isReleased  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([showId, seatId])
+  @@map("seat_locks")
+}
+
+// ============================
+// BOOKINGS
+// ============================
+
+model Booking {
+  id              String        @id @default(uuid())
+  bookingNumber   String        @unique  // CMAX-YYYYMMDD-XXXXX
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  showId          String
+  show            Show          @relation(fields: [showId], references: [id])
+  status          BookingStatus @default(PENDING)
+  totalAmount     Float
+  discountAmount  Float         @default(0)
+  convenienceFee  Float         @default(0)
+  gstAmount       Float         @default(0)
+  grandTotal      Float
+  couponId        String?
+  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+  couponCode      String?
+  sessionId       String?
+  qrCodeUrl       String?
+  pdfUrl          String?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  seats           BookingSeat[]
+  payment         Payment?
+
+  @@map("bookings")
+}
+
+model BookingSeat {
+  id        String  @id @default(uuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seatId    String
+  seat      Seat    @relation(fields: [seatId], references: [id])
+  price     Float
+  seatType  SeatType
+
+  @@unique([bookingId, seatId])
+  @@map("booking_seats")
+}
+
+// ============================
+// PAYMENTS
+// ============================
+
+model Payment {
+  id                String        @id @default(uuid())
+  bookingId         String        @unique
+  booking           Booking       @relation(fields: [bookingId], references: [id])
+  razorpayOrderId   String?       @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  amount            Float
+  currency          String        @default("INR")
+  method            PaymentMethod?
+  status            PaymentStatus @default(PENDING)
+  failureReason     String?
+  refundId          String?
+  refundAmount      Float?
+  refundStatus      RefundStatus?
+  refundedAt        DateTime?
+  paidAt            DateTime?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+// ============================
+// COUPONS & OFFERS
+// ============================
+
+model Coupon {
+  id              String       @id @default(uuid())
+  code            String       @unique
+  title           String
+  description     String?
+  type            CouponType
+  value           Float        // percentage or flat amount
+  minOrderAmount  Float        @default(0)
+  maxDiscount     Float?
+  usageLimit      Int?
+  usedCount       Int          @default(0)
+  userUsageLimit  Int          @default(1)
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean      @default(true)
+  status          CouponStatus @default(ACTIVE)
+  applicableGenres String[]    @default([])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  bookings        Booking[]
+
+  @@map("coupons")
+}
+
+// ============================
+// REVIEWS & RATINGS
+// ============================
+
+model Review {
+  id          String   @id @default(uuid())
+  movieId     String
+  movie       Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String?
+  content     String
+  spoiler     Boolean  @default(false)
+  isApproved  Boolean  @default(false)
+  likesCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([movieId, userId])
+  @@map("reviews")
+}
+
+model Rating {
+  id        String   @id @default(uuid())
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  score     Float    // 0.5 to 5.0
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([movieId, userId])
+  @@map("ratings")
+}
+
+// ============================
+// NOTIFICATIONS
+// ============================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@map("notifications")
+}
+
+// ============================
+// WISHLIST & FAVORITES
+// ============================
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, movieId])
+  @@map("wishlists")
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, movieId])
+  @@map("favorites")
+}
+
+// ============================
+// AUDIT LOGS
+// ============================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String
+  entity     String
+  entityId   String?
+  oldData    Json?
+  newData    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
