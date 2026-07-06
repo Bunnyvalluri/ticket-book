@@ -345,6 +345,7 @@ export const confirmPayment = async (req, res, next) => {
           grandTotal: booking.grandTotal,
         }
       });
+      io.emit('show:update', { showId: booking.showId });
     }
 
     // Create notification
@@ -492,6 +493,7 @@ export const cancelBooking = async (req, res, next) => {
         type: 'BOOKING_CANCELLED',
         bookingId: booking.id,
       });
+      io.emit('show:update', { showId: booking.showId });
     }
 
     // Send cancellation email

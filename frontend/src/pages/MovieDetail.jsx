@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { format, addDays, isSameDay, parseISO } from 'date-fns';
 import { movieAPI, showAPI } from '../services/api.js';
 import { useAuthStore, useUIStore, useBookingStore } from '../store/index.js';
+import { useSocket } from '../context/SocketContext.jsx';
 import LoadingScreen from '../components/ui/LoadingScreen.jsx';
 
 export default function MovieDetail() {
@@ -20,6 +21,23 @@ export default function MovieDetail() {
   const { isAuthenticated, user } = useAuthStore();
   const { selectedCity } = useUIStore();
   const { setCurrentShow, clearBooking } = useBookingStore();
+  const { socket } = useSocket();
+
+  // Listen for real-time seat/show availability updates
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleShowUpdate = (data) => {
+      // Invalidate movie-shows query to refresh seat availability counts instantly
+      queryClient.invalidateQueries({ queryKey: ['movie-shows'] });
+    };
+
+    socket.on('show:update', handleShowUpdate);
+
+    return () => {
+      socket.off('show:update', handleShowUpdate);
+    };
+  }, [socket, queryClient]);
 
   // Selected date for showtimes (default to today)
   const [selectedDate, setSelectedDate] = useState(new Date());

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,6 +41,20 @@ export default function SeatSelection() {
   const [timeLeft, setTimeLeft] = useState(null);
   const [sessionStart] = useState(Date.now());
 
+  const isProceeding = useRef(false);
+  const selectedSeatsRef = useRef(selectedSeats);
+
+  useEffect(() => {
+    selectedSeatsRef.current = selectedSeats;
+  }, [selectedSeats]);
+
+  const handleClear = () => {
+    selectedSeats.forEach((seat) => {
+      socket?.emit('seat:deselect', { seatId: seat.id, showId });
+    });
+    clearSeats();
+  };
+
   // Fetch show with seat layout
   const { data, isLoading, error } = useQuery({
     queryKey: ['show', showId],
@@ -60,6 +74,9 @@ export default function SeatSelection() {
       const elapsed = Date.now() - sessionStart;
       const remaining = TIMEOUT - elapsed;
       if (remaining <= 0) {
+        selectedSeatsRef.current.forEach((seat) => {
+          socket?.emit('seat:deselect', { seatId: seat.id, showId });
+        });
         clearSeats();
         toast.error('Session expired. Please select seats again.');
         navigate(-1);
@@ -68,7 +85,7 @@ export default function SeatSelection() {
       }
     }, 1000);
     return () => clearInterval(tick);
-  }, []);
+  }, [socket, showId]);
 
   // Socket.io real-time
   useEffect(() => {
@@ -101,6 +118,13 @@ export default function SeatSelection() {
       socket.off('seat:locked', handleSeatLocked);
       socket.off('seat:released', handleSeatReleased);
       socket.off('seat:booked', handleSeatBooked);
+
+      if (!isProceeding.current) {
+        selectedSeatsRef.current.forEach((seat) => {
+          socket.emit('seat:deselect', { seatId: seat.id, showId });
+        });
+        clearSeats();
+      }
     };
   }, [socket, showId]);
 
@@ -136,6 +160,7 @@ export default function SeatSelection() {
       toast.error('Please select at least one seat');
       return;
     }
+    isProceeding.current = true;
     navigate('/booking/summary');
   };
 
@@ -335,7 +360,7 @@ export default function SeatSelection() {
               </div>
 
               <div className="flex items-center gap-3">
-                <button onClick={clearSeats} className="btn-ghost px-4 py-2.5 text-sm rounded-lg">
+                <button onClick={handleClear} className="btn-ghost px-4 py-2.5 text-sm rounded-lg">
                   Clear
                 </button>
                 <motion.button
