@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useBookingStore } from '../store/index.js';
 import { bookingAPI } from '../services/api.js';
 import toast from 'react-hot-toast';
-import { FiTag, FiX, FiCheck, FiLoader, FiFilm, FiMapPin, FiClock, FiSeat } from 'react-icons/fi';
+import { FiTag, FiX, FiCheck, FiLoader, FiFilm, FiMapPin, FiClock } from 'react-icons/fi';
 import { MdEventSeat } from 'react-icons/md';
 
 export default function BookingSummary() {
