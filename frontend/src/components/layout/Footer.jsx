@@ -3,6 +3,8 @@ import { FiInstagram, FiTwitter, FiFacebook, FiYoutube, FiMail, FiPhone, FiFilm,
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
+import { BrandLogoIcon } from '../common/BrandLogo.jsx';
+
 export default function Footer() {
   const [email, setEmail] = useState('');
 
@@ -62,12 +64,10 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-5">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white shadow-lg glow-purple">
-                <FiFilm className="text-xl" />
-              </div>
+              <BrandLogoIcon className="w-10 h-10" iconSize="w-5 h-5" />
               <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight gradient-text">CineMax</span>
-                <span className="text-[10px] font-semibold text-purple-400 uppercase tracking-widest -mt-1">Cinema Pass</span>
+                <span className="text-2xl font-black tracking-tight gradient-text font-heading">CineMax</span>
+                <span className="text-[10px] font-semibold text-purple-400 uppercase tracking-widest -mt-1 font-heading">Cinema Pass</span>
               </div>
             </Link>
             <p className="text-xs leading-relaxed text-slate-400 max-w-sm">

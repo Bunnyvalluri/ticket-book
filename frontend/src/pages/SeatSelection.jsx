@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { showAPI } from '../services/api.js';
 import { useBookingStore, useAuthStore } from '../store/index.js';
 import { useSocket } from '../context/SocketContext.jsx';
+import { BrandLogoIcon } from '../components/common/BrandLogo.jsx';
 import toast from 'react-hot-toast';
 import { FiClock, FiZoomIn, FiZoomOut, FiArrowRight, FiX, FiCheck, FiFilm, FiShield } from 'react-icons/fi';
 
@@ -211,11 +212,9 @@ export default function SeatSelection() {
       <header className="bg-slate-900/90 border-b border-slate-800 py-3.5 px-6 backdrop-blur-xl sticky top-0 z-30">
         <div className="container-app flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center text-white font-black shadow-lg glow-purple">
-              🍿
-            </div>
-            <span className="text-xl font-black tracking-wider text-white uppercase font-sans">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+            <BrandLogoIcon className="w-9 h-9" iconSize="w-5 h-5" />
+            <span className="text-xl font-black tracking-wider text-white uppercase font-heading">
               TICKET <span className="gradient-text">BOX</span>
             </span>
           </div>

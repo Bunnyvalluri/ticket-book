@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore, useUIStore, useNotificationStore } from '../../store/index.js';
 import { authAPI, notificationAPI } from '../../services/api.js';
+import { BrandLogoIcon } from '../common/BrandLogo.jsx';
 import toast from 'react-hot-toast';
 import {
   FiSearch, FiX, FiBell, FiUser, FiLogOut, FiBookmark,
@@ -97,15 +98,9 @@ export default function Navbar() {
           
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <motion.div
-              whileHover={{ rotate: 15, scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center text-white shadow-lg glow-purple shrink-0"
-            >
-              <FiFilm className="text-lg" />
-            </motion.div>
+            <BrandLogoIcon className="w-10 h-10" iconSize="w-5 h-5" />
             <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tight gradient-text leading-none">
+              <span className="text-xl sm:text-2xl font-black tracking-tight gradient-text leading-none font-heading">
                 CineMax
               </span>
               <span className="text-[9px] font-bold text-purple-400/90 tracking-widest uppercase -mt-0.5">
