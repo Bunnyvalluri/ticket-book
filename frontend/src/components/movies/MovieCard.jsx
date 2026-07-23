@@ -46,7 +46,7 @@ export default function MovieCard({ movie, index = 0 }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.04, 0.4), duration: 0.4 }}
     >
-      <Link to={`/movies/${movie.slug}`} className="block movie-card group">
+      <Link to={`/movies/${movie.slug || movie.id}`} className="block movie-card group">
         
         {/* Poster Wrapper */}
         <div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-slate-900">

@@ -57,7 +57,18 @@ export default function MovieDetail() {
   });
 
   const apiMovie = movieResponse?.data?.data?.movie;
-  const movie = apiMovie || FALLBACK_MOVIES.find((m) => m.slug === slug) || FALLBACK_MOVIES[0];
+  const fallbackMovie = FALLBACK_MOVIES.find((m) => m.slug === slug || m.id === slug) || FALLBACK_MOVIES[0];
+
+  const movie = apiMovie ? {
+    ...fallbackMovie,
+    ...apiMovie,
+    crew: apiMovie.crew?.length ? apiMovie.crew : fallbackMovie.crew,
+    cast: apiMovie.cast?.length ? apiMovie.cast : fallbackMovie.cast,
+    gallery: apiMovie.gallery?.length ? apiMovie.gallery : fallbackMovie.gallery,
+    genres: apiMovie.genres?.length ? apiMovie.genres : fallbackMovie.genres,
+    languages: apiMovie.languages?.length ? apiMovie.languages : fallbackMovie.languages,
+    reviews: apiMovie.reviews?.length ? apiMovie.reviews : fallbackMovie.reviews,
+  } : fallbackMovie;
 
   // Recommended movies list
   const recommendedMovies = FALLBACK_MOVIES.filter((m) => m.slug !== movie?.slug);
