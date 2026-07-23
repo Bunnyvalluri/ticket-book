@@ -22,6 +22,7 @@ import bookingRoutes from './routes/booking.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import tmdbRoutes from './routes/tmdb.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
+import { startPaymentScheduler, stopPaymentScheduler } from './utils/payment.scheduler.js';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -147,6 +148,8 @@ const start = async () => {
       logger.info(`🚀 Server running on port ${PORT} [${config.env}]`);
       logger.info(`📡 API: http://localhost:${PORT}/api`);
       logger.info(`🔌 WebSocket: ws://localhost:${PORT}`);
+      // Start UPI payment expiry scheduler
+      startPaymentScheduler();
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
@@ -157,6 +160,7 @@ const start = async () => {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received. Shutting down...');
+  stopPaymentScheduler();
   await prisma.$disconnect();
   httpServer.close(() => {
     logger.info('Server closed');
@@ -165,6 +169,7 @@ process.on('SIGTERM', async () => {
 });
 
 process.on('SIGINT', async () => {
+  stopPaymentScheduler();
   await prisma.$disconnect();
   process.exit(0);
 });

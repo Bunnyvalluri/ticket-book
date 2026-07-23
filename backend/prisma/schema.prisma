@@ -53,6 +53,7 @@ enum SeatStatus {
 
 enum BookingStatus {
   PENDING
+  PAYMENT_PENDING
   CONFIRMED
   CANCELLED
   REFUNDED
@@ -65,6 +66,21 @@ enum PaymentStatus {
   FAILED
   REFUNDED
   PARTIALLY_REFUNDED
+}
+
+enum UpiPaymentStatus {
+  WAITING
+  QR_SCANNED
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum UpiProvider {
+  DEMO
+  RAZORPAY_UPI
+  PHONEPE
 }
 
 enum PaymentMethod {
@@ -550,25 +566,36 @@ model BookingSeat {
 // ============================
 
 model Payment {
-  id                String        @id @default(uuid())
-  bookingId         String        @unique
-  booking           Booking       @relation(fields: [bookingId], references: [id])
-  razorpayOrderId   String?       @unique
-  razorpayPaymentId String?       @unique
-  razorpaySignature String?
-  amount            Float
-  currency          String        @default("INR")
-  method            PaymentMethod?
-  status            PaymentStatus @default(PENDING)
-  failureReason     String?
-  refundId          String?
-  refundAmount      Float?
-  refundStatus      RefundStatus?
-  refundedAt        DateTime?
-  paidAt            DateTime?
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id                  String             @id @default(uuid())
+  bookingId           String             @unique
+  booking             Booking            @relation(fields: [bookingId], references: [id])
+  // Razorpay fields (kept for compatibility)
+  razorpayOrderId     String?            @unique
+  razorpayPaymentId   String?            @unique
+  razorpaySignature   String?
+  // UPI-specific fields
+  transactionId       String?            @unique  // Unique UPI transaction ref (tr param)
+  merchantTransactionId String?                   // Provider-assigned txn ID
+  merchantUpiId       String?                     // Merchant VPA (e.g. cinemax@upi)
+  upiUri              String?            @db.Text // Full upi://pay?... string
+  qrCodeDataUrl       String?            @db.Text // Base64 QR image for display
+  provider            UpiProvider?       @default(DEMO)
+  upiStatus           UpiPaymentStatus?  @default(WAITING)
+  expiresAt           DateTime?                   // 5-minute payment window
+  // Common fields
+  amount              Float
+  currency            String             @default("INR")
+  method              PaymentMethod?     @default(UPI)
+  status              PaymentStatus      @default(PENDING)
+  failureReason       String?
+  refundId            String?
+  refundAmount        Float?
+  refundStatus        RefundStatus?
+  refundedAt          DateTime?
+  paidAt              DateTime?
+  metadata            Json?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
 
   @@map("payments")
 }

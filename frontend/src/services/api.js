@@ -140,7 +140,10 @@ export const showAPI = {
 // BOOKINGS
 export const bookingAPI = {
   create: (data) => api.post('/bookings', data),
+  // UPI payment confirmation (demo button + production webhook result)
   confirmPayment: (data) => api.post('/bookings/confirm-payment', data),
+  // Poll live payment status from server
+  getPaymentStatus: (id) => api.get(`/bookings/${id}/payment-status`),
   validateCoupon: (data) => api.post('/bookings/validate-coupon', data),
   getMy: (params) => api.get('/bookings/my', { params }),
   getById: (id) => api.get(`/bookings/${id}`),
