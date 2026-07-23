@@ -36,15 +36,59 @@ export default function Login() {
     }
   };
 
-  const handleDemoFill = (role = 'user') => {
-    if (role === 'admin') {
-      setValue('email', 'admin@cinemax.com');
-      setValue('password', 'Admin@1234');
-      toast.success('Filled Admin Demo Credentials (admin@cinemax.com)! 👑');
-    } else {
-      setValue('email', 'customer@cinemax.com');
-      setValue('password', 'Test@1234');
-      toast.success('Filled Customer Demo Credentials (customer@cinemax.com)! 🍿');
+  const DEMO_USERS = {
+    user: {
+      user: {
+        id: 'demo-customer-001',
+        email: 'customer@cinemax.com',
+        firstName: 'Demo',
+        lastName: 'Customer',
+        role: 'CUSTOMER',
+        phone: '+91 98765 43210',
+        avatarUrl: null,
+        isEmailVerified: true,
+        status: 'ACTIVE',
+      },
+      accessToken: 'demo-token-customer-cinemax-2026',
+    },
+    admin: {
+      user: {
+        id: 'demo-admin-001',
+        email: 'admin@cinemax.com',
+        firstName: 'Admin',
+        lastName: 'CineMax',
+        role: 'SUPER_ADMIN',
+        phone: '+91 98765 00000',
+        avatarUrl: null,
+        isEmailVerified: true,
+        status: 'ACTIVE',
+      },
+      accessToken: 'demo-token-admin-cinemax-2026',
+    },
+  };
+
+  const handleDemoLogin = async (role = 'user') => {
+    setLoading(true);
+    const credentials = role === 'admin'
+      ? { email: 'admin@cinemax.com', password: 'Admin@1234' }
+      : { email: 'customer@cinemax.com', password: 'Test@1234' };
+
+    try {
+      const res = await authAPI.login(credentials);
+      const { user, accessToken } = res.data.data;
+      setAuth(user, accessToken);
+      toast.success(`Welcome back, ${user.firstName}! 🎬`);
+      navigate(from, { replace: true });
+    } catch {
+      // Backend not reachable — use local mock user for Vercel demo
+      const demo = DEMO_USERS[role];
+      setAuth(demo.user, demo.accessToken);
+      toast.success(role === 'admin'
+        ? '👑 Admin Demo Login — Welcome Admin!'
+        : '🍿 Customer Demo Login — Welcome to CineMax!');
+      navigate(from, { replace: true });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -151,21 +195,23 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Quick Demo Credentials Fill Buttons */}
+          {/* Quick Demo One-Click Login Buttons */}
           <div className="p-3 rounded-2xl bg-purple-950/40 border border-purple-500/40 space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 block">⚡ Quick Demo Login (Click to Fill)</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 block">⚡ One-Click Demo Login (No Password Needed)</span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => handleDemoFill('user')}
-                className="py-2 px-3 rounded-xl text-[11px] font-bold bg-purple-600/30 text-purple-200 hover:bg-purple-600/50 border border-purple-500/40 transition-all text-center"
+                onClick={() => handleDemoLogin('user')}
+                disabled={loading}
+                className="py-2 px-3 rounded-xl text-[11px] font-bold bg-purple-600/30 text-purple-200 hover:bg-purple-600/50 border border-purple-500/40 transition-all text-center disabled:opacity-50"
               >
                 🍿 Customer Demo
               </button>
               <button
                 type="button"
-                onClick={() => handleDemoFill('admin')}
-                className="py-2 px-3 rounded-xl text-[11px] font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 transition-all text-center"
+                onClick={() => handleDemoLogin('admin')}
+                disabled={loading}
+                className="py-2 px-3 rounded-xl text-[11px] font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 transition-all text-center disabled:opacity-50"
               >
                 👑 Admin Demo
               </button>
