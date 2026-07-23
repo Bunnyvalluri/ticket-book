@@ -8,6 +8,9 @@ import toast from 'react-hot-toast';
 import { authAPI } from '../../services/api.js';
 import { useAuthStore } from '../../store/index.js';
 
+import { auth } from '../../config/firebase.js';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,7 +33,28 @@ export default function Login() {
       toast.success(`Welcome back, ${user.firstName}! 🎬`);
       navigate(from, { replace: true });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      // Try Firebase Email/Password Auth as fallback
+      try {
+        const userCred = await signInWithEmailAndPassword(auth, data.email, data.password);
+        const fbUser = userCred.user;
+        const names = (fbUser.displayName || fbUser.email.split('@')[0]).split(' ');
+        const authUser = {
+          id: fbUser.uid,
+          email: fbUser.email,
+          firstName: names[0] || 'User',
+          lastName: names.slice(1).join(' ') || '',
+          role: 'CUSTOMER',
+          avatarUrl: fbUser.photoURL,
+          isEmailVerified: fbUser.emailVerified,
+          status: 'ACTIVE',
+        };
+        const token = await fbUser.getIdToken();
+        setAuth(authUser, token);
+        toast.success(`Welcome back, ${authUser.firstName}! 🎬`);
+        navigate(from, { replace: true });
+      } catch (fbErr) {
+        toast.error(err.response?.data?.message || fbErr.message || 'Login failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }
@@ -92,8 +116,35 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL || '/api'}/auth/google`;
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const names = (user.displayName || 'Google User').split(' ');
+      const authUser = {
+        id: user.uid,
+        email: user.email,
+        firstName: names[0] || 'Google',
+        lastName: names.slice(1).join(' ') || 'User',
+        role: 'CUSTOMER',
+        avatarUrl: user.photoURL,
+        isEmailVerified: user.emailVerified,
+        status: 'ACTIVE',
+      };
+      const token = await user.getIdToken();
+      setAuth(authUser, token);
+      toast.success(`Welcome ${authUser.firstName}! Signed in with Google 🎬`);
+      navigate(from, { replace: true });
+    } catch (err) {
+      console.error('Google Auth Error:', err);
+      if (err.code !== 'auth/popup-closed-by-user') {
+        toast.error(err.message || 'Google sign-in failed');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

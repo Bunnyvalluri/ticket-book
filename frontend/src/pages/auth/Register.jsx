@@ -7,8 +7,13 @@ import { FcGoogle } from 'react-icons/fc';
 import toast from 'react-hot-toast';
 import { authAPI } from '../../services/api.js';
 
+import { auth } from '../../config/firebase.js';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { useAuthStore } from '../../store/index.js';
+
 export default function Register() {
   const navigate = useNavigate();
+  const { setAuth } = useAuthStore();
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -32,8 +37,32 @@ export default function Register() {
       toast.success('Registration successful! Please check your email to verify account. 🎬');
       navigate('/login');
     } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || 'Registration failed';
-      toast.error(msg);
+      // Create user in Firebase Auth if backend registration is offline
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, data.email, data.password);
+        const fbUser = userCred.user;
+        const displayName = `${data.firstName} ${data.lastName}`.trim();
+        await updateProfile(fbUser, { displayName });
+        
+        const authUser = {
+          id: fbUser.uid,
+          email: fbUser.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          role: 'CUSTOMER',
+          phone: data.phone || '',
+          avatarUrl: null,
+          isEmailVerified: fbUser.emailVerified,
+          status: 'ACTIVE',
+        };
+        const token = await fbUser.getIdToken();
+        setAuth(authUser, token);
+        toast.success(`Account created! Welcome, ${data.firstName}! 🎬`);
+        navigate('/');
+      } catch (fbErr) {
+        const msg = err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || fbErr.message || 'Registration failed';
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -50,8 +79,35 @@ export default function Register() {
     toast.success('Sample data filled! Click "Create Account Now". 🚀');
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL || '/api'}/auth/google`;
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const names = (user.displayName || 'Google User').split(' ');
+      const authUser = {
+        id: user.uid,
+        email: user.email,
+        firstName: names[0] || 'Google',
+        lastName: names.slice(1).join(' ') || 'User',
+        role: 'CUSTOMER',
+        avatarUrl: user.photoURL,
+        isEmailVerified: user.emailVerified,
+        status: 'ACTIVE',
+      };
+      const token = await user.getIdToken();
+      setAuth(authUser, token);
+      toast.success(`Welcome ${authUser.firstName}! Signed in with Google 🎬`);
+      navigate('/');
+    } catch (err) {
+      console.error('Google Auth Error:', err);
+      if (err.code !== 'auth/popup-closed-by-user') {
+        toast.error(err.message || 'Google sign-in failed');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
