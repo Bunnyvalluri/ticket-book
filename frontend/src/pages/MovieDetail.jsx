@@ -31,6 +31,7 @@ export default function MovieDetail() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
   const [activeImageModal, setActiveImageModal] = useState(null);
+  const [activeTrailerModal, setActiveTrailerModal] = useState(null);
   
   // Review form state
   const [ratingInput, setRatingInput] = useState(5);
@@ -66,6 +67,7 @@ export default function MovieDetail() {
     crew: apiMovie.crew?.length ? apiMovie.crew : fallbackMovie.crew,
     cast: apiMovie.cast?.length ? apiMovie.cast : fallbackMovie.cast,
     gallery: apiMovie.gallery?.length ? apiMovie.gallery : fallbackMovie.gallery,
+    trailers: fallbackMovie.trailers || [],
     genres: apiMovie.genres?.length ? apiMovie.genres : fallbackMovie.genres,
     languages: apiMovie.languages?.length ? apiMovie.languages : fallbackMovie.languages,
     reviews: apiMovie.reviews?.length ? apiMovie.reviews : fallbackMovie.reviews,
@@ -481,6 +483,62 @@ export default function MovieDetail() {
               </div>
             )}
 
+            {/* Trailers & Videos Section */}
+            {movie.trailers?.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 font-heading flex items-center gap-2">
+                  <FiPlay className="text-red-400" /> Trailers & Videos
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {movie.trailers.map((t) => (
+                    <div
+                      key={t.id}
+                      onClick={() => setActiveTrailerModal(t)}
+                      className="relative rounded-2xl overflow-hidden glass-card border border-white/10 group cursor-pointer hover:border-red-500/40 transition-all duration-300"
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative aspect-video">
+                        <img
+                          src={t.thumbnailUrl || movie.bannerUrl}
+                          alt={t.title}
+                          onError={(e) => { e.currentTarget.src = movie.bannerUrl || movie.posterUrl; }}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {/* Dark overlay */}
+                        <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-all duration-300" />
+                        {/* Play Button */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-14 h-14 rounded-full bg-red-600/90 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-red-500 transition-all duration-300">
+                            <FiPlay className="text-white fill-white ml-1" size={22} />
+                          </div>
+                        </div>
+                        {/* Type badge */}
+                        {t.type && (
+                          <div className="absolute top-2 left-2">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600/80 text-white uppercase tracking-wider">
+                              {t.type}
+                            </span>
+                          </div>
+                        )}
+                        {/* Duration */}
+                        {t.duration && (
+                          <div className="absolute bottom-2 right-2">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 text-slate-200">
+                              {t.duration}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      {/* Title */}
+                      <div className="px-4 py-3">
+                        <p className="text-xs font-bold text-slate-100 group-hover:text-red-300 transition-colors line-clamp-2">{t.title}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Showtime Selection Section */}
             <div className="pt-6 space-y-6 border-t border-white/10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
@@ -690,13 +748,16 @@ export default function MovieDetail() {
 
       {/* Trailer Video Player Modal */}
       <AnimatePresence>
-        {isPlayingTrailer && movie.trailerUrl && (
+        {(isPlayingTrailer || activeTrailerModal) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl"
-            onClick={() => setIsPlayingTrailer(false)}
+            onClick={() => {
+              setIsPlayingTrailer(false);
+              setActiveTrailerModal(null);
+            }}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -706,17 +767,20 @@ export default function MovieDetail() {
               onClick={(e) => e.stopPropagation()}
             >
               <button
-                onClick={() => setIsPlayingTrailer(false)}
+                onClick={() => {
+                  setIsPlayingTrailer(false);
+                  setActiveTrailerModal(null);
+                }}
                 className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full glass-card flex items-center justify-center text-white hover:bg-red-500/20"
               >
                 <FiX size={20} />
               </button>
               <iframe
-                src={movie.trailerUrl?.replace('watch?v=', 'embed/') + '?autoplay=1'}
+                src={(activeTrailerModal?.url || movie.trailerUrl)?.replace('watch?v=', 'embed/') + '?autoplay=1'}
                 className="w-full h-full"
                 allowFullScreen
                 allow="autoplay"
-                title={`${movie.title} Trailer`}
+                title={activeTrailerModal?.title || `${movie.title} Trailer`}
               />
             </motion.div>
           </motion.div>

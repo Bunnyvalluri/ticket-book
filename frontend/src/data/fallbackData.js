@@ -43,6 +43,11 @@ export const FALLBACK_MOVIES = [
       { id: 'c4_b', name: 'Florence Pugh', characterName: 'Jean Tatlock', photoUrl: 'https://image.tmdb.org/t/p/w185/3V1k092c4dM46kQf1i3e54z.jpg' },
       { id: 'c4_c', name: 'Rami Malek', characterName: 'David L. Hill', photoUrl: 'https://image.tmdb.org/t/p/w185/z8t5Q5T6W61aW.jpg' }
     ],
+    trailers: [
+      { id: 't1_1', title: 'Official Trailer 1', url: 'https://www.youtube.com/embed/uYPbbksJxIg', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/neeNHeXjMF5fXoCJRsOmkNGC7q.jpg', type: 'Main Trailer', duration: '3m 05s' },
+      { id: 't1_2', title: 'IMAX Exclusive Trailer', url: 'https://www.youtube.com/embed/bK6ldnjE3Y0', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', type: 'IMAX Special', duration: '2m 15s' },
+      { id: 't1_3', title: 'Pushing The Button - Behind The Scenes', url: 'https://www.youtube.com/embed/3n2c0g6Y44Y', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/fm6KqXpk3M22vDpB4hWuOD.jpg', type: 'Featurette', duration: '5m 40s' }
+    ],
     gallery: [
       { id: 'g1_1', imageUrl: 'https://image.tmdb.org/t/p/original/neeNHeXjMF5fXoCJRsOmkNGC7q.jpg', caption: 'Oppenheimer Trinity Test Site' },
       { id: 'g1_2', imageUrl: 'https://image.tmdb.org/t/p/original/rMvPXy8PUjj1o8o1p19L191u.jpg', caption: 'Lewis Strauss & Oppenheimer Hearing' },
@@ -92,6 +97,11 @@ export const FALLBACK_MOVIES = [
       { id: 'c7', name: 'Rebecca Ferguson', characterName: 'Lady Jessica', photoUrl: 'https://image.tmdb.org/t/p/w185/ty8ZPzaCBBlqIr5qzpOXI24iC8j.jpg' },
       { id: 'c7_b', name: 'Javier Bardem', characterName: 'Stilgar', photoUrl: 'https://image.tmdb.org/t/p/w185/212a9z.jpg' },
       { id: 'c7_c', name: 'Austin Butler', characterName: 'Feyd-Rautha Harkonnen', photoUrl: 'https://image.tmdb.org/t/p/w185/88a29z.jpg' }
+    ],
+    trailers: [
+      { id: 't2_1', title: 'Official Trailer 3', url: 'https://www.youtube.com/embed/Way9Dexny3w', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/eZ239CUp1d6OryZEBPnO2n87gMG.jpg', type: 'Main Trailer', duration: '3m 02s' },
+      { id: 't2_2', title: 'Official Teaser Trailer', url: 'https://www.youtube.com/embed/Way9Dexny3w', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', type: 'Teaser', duration: '2m 24s' },
+      { id: 't2_3', title: 'Creating Arrakis & Worm riding', url: 'https://www.youtube.com/embed/Way9Dexny3w', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/eZ239CUp1d6OryZEBPnO2n87gMG.jpg', type: 'Featurette', duration: '4m 10s' }
     ],
     gallery: [
       { id: 'g2_1', imageUrl: 'https://image.tmdb.org/t/p/original/eZ239CUp1d6OryZEBPnO2n87gMG.jpg', caption: 'Paul Atreides riding Shai-Hulud Sandworm' },
@@ -143,6 +153,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c10_b', name: 'Deepika Padukone', characterName: 'SUM-80 / Sumathi', photoUrl: 'https://image.tmdb.org/t/p/w185/881z.jpg' },
       { id: 'c10_c', name: 'Disha Patani', characterName: 'Roxie', photoUrl: 'https://image.tmdb.org/t/p/w185/771z.jpg' }
     ],
+    trailers: [
+      { id: 't3_1', title: 'Release Trailer', url: 'https://www.youtube.com/embed/kQDd1AhGIHk', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/o8XSR1SONnjcsv84NRu6Mwsl5io.jpg', type: 'Main Trailer', duration: '3m 01s' },
+      { id: 't3_2', title: 'Bujji & Bhairava Special Teaser', url: 'https://www.youtube.com/embed/kQDd1AhGIHk', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/rstcAnBeCkxNQjNp3YXrF6IP1tW.jpg', type: 'Teaser', duration: '2m 10s' }
+    ],
     gallery: [
       { id: 'g3_1', imageUrl: 'https://image.tmdb.org/t/p/original/o8XSR1SONnjcsv84NRu6Mwsl5io.jpg', caption: 'Bhairava with Bujji AI Vehicle' },
       { id: 'g3_2', imageUrl: 'https://image.tmdb.org/t/p/original/rstcAnBeCkxNQjNp3YXrF6IP1tW.jpg', caption: 'Ashwatthama battle scene' }
@@ -188,6 +202,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c12', name: 'Hugh Jackman', characterName: 'Logan / Wolverine', photoUrl: 'https://image.tmdb.org/t/p/w185/4Xujtewxqt6aU0Y81tsS9gkjizk.jpg' },
       { id: 'c12_b', name: 'Emma Corrin', characterName: 'Cassandra Nova', photoUrl: 'https://image.tmdb.org/t/p/w185/551z.jpg' },
       { id: 'c12_c', name: 'Morena Baccarin', characterName: 'Vanessa', photoUrl: 'https://image.tmdb.org/t/p/w185/441z.jpg' }
+    ],
+    trailers: [
+      { id: 't4_1', title: 'Official Red Band Trailer', url: 'https://www.youtube.com/embed/73_1biulkYk', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/cOoVcVQ3i1m5b2xtqKBtoTSbxC1.jpg', type: 'Main Trailer', duration: '2m 38s' },
+      { id: 't4_2', title: 'Teaser Trailer - Marvel Multiverse', url: 'https://www.youtube.com/embed/73_1biulkYk', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg', type: 'Teaser', duration: '2m 25s' }
     ],
     gallery: [
       { id: 'g4_1', imageUrl: 'https://image.tmdb.org/t/p/original/cOoVcVQ3i1m5b2xtqKBtoTSbxC1.jpg', caption: 'Deadpool & Wolverine Void Showdown' }
@@ -235,6 +253,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c14_c', name: 'Tom Hardy', characterName: 'Eames', photoUrl: 'https://image.tmdb.org/t/p/w185/221z.jpg' },
       { id: 'c14_d', name: 'Ken Watanabe', characterName: 'Saito', photoUrl: 'https://image.tmdb.org/t/p/w185/111z.jpg' }
     ],
+    trailers: [
+      { id: 't5_1', title: 'Official Main Trailer', url: 'https://www.youtube.com/embed/YoHD9XEInc0', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg', type: 'Main Trailer', duration: '2m 28s' },
+      { id: 't5_2', title: 'Teaser - Dream Within A Dream', url: 'https://www.youtube.com/embed/YoHD9XEInc0', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg', type: 'Teaser', duration: '1m 55s' }
+    ],
     gallery: [
       { id: 'g5_1', imageUrl: 'https://image.tmdb.org/t/p/original/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg', caption: 'Dream folding city of Paris' }
     ],
@@ -281,6 +303,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c16_b', name: 'Jessica Chastain', characterName: 'Murphy "Murph" Cooper', photoUrl: 'https://image.tmdb.org/t/p/w185/551a.jpg' },
       { id: 'c16_c', name: 'Michael Caine', characterName: 'Professor John Brand', photoUrl: 'https://image.tmdb.org/t/p/w185/661a.jpg' }
     ],
+    trailers: [
+      { id: 't6_1', title: 'Official Trailer 3', url: 'https://www.youtube.com/embed/zSWdZVtXT7E', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/2ssWTSVklAEc98frZUQhgtGHx7s.jpg', type: 'Main Trailer', duration: '2m 34s' },
+      { id: 't6_2', title: 'Teaser - Mankind Was Born On Earth', url: 'https://www.youtube.com/embed/zSWdZVtXT7E', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg', type: 'Teaser', duration: '1m 52s' }
+    ],
     gallery: [
       { id: 'g6_1', imageUrl: 'https://image.tmdb.org/t/p/original/2ssWTSVklAEc98frZUQhgtGHx7s.jpg', caption: 'Endurance spacecraft near Gargantua Black Hole' }
     ],
@@ -324,6 +350,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c17', name: 'Shameik Moore', characterName: 'Miles Morales (voice)', photoUrl: 'https://image.tmdb.org/t/p/w185/ovUKfVOwJ7CadEHaG3NDsfA5xRq.jpg' },
       { id: 'c18', name: 'Hailee Steinfeld', characterName: 'Gwen Stacy (voice)', photoUrl: 'https://image.tmdb.org/t/p/w185/4K2dzM3odGiVZOQOD6RjVxNq2ZQ.jpg' },
       { id: 'c18_b', name: 'Oscar Isaac', characterName: 'Miguel O\'Hara / Spider-Man 2099', photoUrl: 'https://image.tmdb.org/t/p/w185/111z.jpg' }
+    ],
+    trailers: [
+      { id: 't7_1', title: 'Official Trailer 2', url: 'https://www.youtube.com/embed/cqGjhVJWtEg', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/9xfDWXAUbFXQK585JvByT5pEAhe.jpg', type: 'Main Trailer', duration: '2m 45s' },
+      { id: 't7_2', title: 'Teaser Trailer - Multiverse Spider-Society', url: 'https://www.youtube.com/embed/cqGjhVJWtEg', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg', type: 'Teaser', duration: '2m 12s' }
     ],
     gallery: [
       { id: 'g7_1', imageUrl: 'https://image.tmdb.org/t/p/original/9xfDWXAUbFXQK585JvByT5pEAhe.jpg', caption: 'Multiverse Spider-Society Headquarters' }
@@ -369,6 +399,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c20_b', name: 'Sigourney Weaver', characterName: 'Kiri', photoUrl: 'https://image.tmdb.org/t/p/w185/332z.jpg' },
       { id: 'c20_c', name: 'Kate Winslet', characterName: 'Ronal', photoUrl: 'https://image.tmdb.org/t/p/w185/222z.jpg' }
     ],
+    trailers: [
+      { id: 't8_1', title: 'Official Main Trailer', url: 'https://www.youtube.com/embed/d9MyW72ELq0', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/kJsPVzdyBrYHLomuNv5SJDXUQ2f.jpg', type: 'Main Trailer', duration: '2m 28s' },
+      { id: 't8_2', title: 'Teaser - Return to Pandora', url: 'https://www.youtube.com/embed/d9MyW72ELq0', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg', type: 'Teaser', duration: '1m 38s' }
+    ],
     gallery: [
       { id: 'g8_1', imageUrl: 'https://image.tmdb.org/t/p/original/kJsPVzdyBrYHLomuNv5SJDXUQ2f.jpg', caption: 'Metkayina Ocean Reef Village' }
     ],
@@ -413,6 +447,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c22', name: 'Heath Ledger', characterName: 'Joker', photoUrl: 'https://image.tmdb.org/t/p/w185/5Y9HnYYa9jF25w1R9FfJk9J0kL2.jpg' },
       { id: 'c22_b', name: 'Aaron Eckhart', characterName: 'Harvey Dent / Two-Face', photoUrl: 'https://image.tmdb.org/t/p/w185/333z.jpg' },
       { id: 'c22_c', name: 'Gary Oldman', characterName: 'James Gordon', photoUrl: 'https://image.tmdb.org/t/p/w185/223z.jpg' }
+    ],
+    trailers: [
+      { id: 't9_1', title: 'Official Main Trailer', url: 'https://www.youtube.com/embed/EXeTwQWrcwY', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/hkBaDkMWbLaf8B1lsWsKX7Ew3Hc.jpg', type: 'Main Trailer', duration: '2m 30s' },
+      { id: 't9_2', title: 'Joker Teaser Trailer', url: 'https://www.youtube.com/embed/EXeTwQWrcwY', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg', type: 'Teaser', duration: '1m 45s' }
     ],
     gallery: [
       { id: 'g9_1', imageUrl: 'https://image.tmdb.org/t/p/original/hkBaDkMWbLaf8B1lsWsKX7Ew3Hc.jpg', caption: 'Batman overlooking Gotham City' }
@@ -460,6 +498,10 @@ export const FALLBACK_MOVIES = [
       { id: 'c23', name: 'Allu Arjun', characterName: 'Pushpa Raj', photoUrl: 'https://image.tmdb.org/t/p/w185/q2a7e7811Y11B5z99Z.jpg' },
       { id: 'c24', name: 'Rashmika Mandanna', characterName: 'Srivalli', photoUrl: 'https://image.tmdb.org/t/p/w185/z33Y11B5z99Z.jpg' },
       { id: 'c24_b', name: 'Fahadh Faasil', characterName: 'Bhanwar Singh Shekhawat IPS', photoUrl: 'https://image.tmdb.org/t/p/w185/113z.jpg' }
+    ],
+    trailers: [
+      { id: 't10_1', title: 'Official Release Trailer', url: 'https://www.youtube.com/embed/1kVK0MZlbI4', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/9lE2LqQ721lB0f0Yx4Y9yQYQ0K2.jpg', type: 'Main Trailer', duration: '2m 48s' },
+      { id: 't10_2', title: 'Pushpa Raj Mass Teaser', url: 'https://www.youtube.com/embed/1kVK0MZlbI4', thumbnailUrl: 'https://image.tmdb.org/t/p/w500/50v2t4VwF0j72N87a0491X5Xy7g.jpg', type: 'Teaser', duration: '1m 50s' }
     ],
     gallery: [
       { id: 'g10_1', imageUrl: 'https://image.tmdb.org/t/p/original/9lE2LqQ721lB0f0Yx4Y9yQYQ0K2.jpg', caption: 'Pushpa Raj Mass Entry' }
