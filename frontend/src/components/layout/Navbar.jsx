@@ -97,13 +97,13 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-12">
           
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <BrandLogoIcon className="w-10 h-10" iconSize="w-5 h-5" />
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+            <BrandLogoIcon className="w-8 h-8 sm:w-10 sm:h-10" iconSize="w-4 h-4 sm:w-5 sm:h-5" />
             <div className="flex flex-col">
-              <span className="text-xl sm:text-2xl font-black tracking-tight gradient-text leading-none font-heading">
+              <span className="text-lg sm:text-2xl font-black tracking-tight gradient-text leading-none font-heading">
                 CineMax
               </span>
-              <span className="text-[9px] font-bold text-purple-400/90 tracking-widest uppercase -mt-0.5">
+              <span className="text-[8px] sm:text-[9px] font-bold text-purple-400/90 tracking-widest uppercase -mt-0.5 hidden xs:block font-heading">
                 Cinema Pass
               </span>
             </div>
@@ -188,14 +188,14 @@ export default function Navbar() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             
             {/* Search Input Bar */}
             <AnimatePresence>
               {isSearchOpen ? (
                 <motion.form
                   initial={{ width: 40, opacity: 0 }}
-                  animate={{ width: 250, opacity: 1 }}
+                  animate={{ width: window.innerWidth < 640 ? 140 : 220, opacity: 1 }}
                   exit={{ width: 40, opacity: 0 }}
                   onSubmit={handleSearch}
                   className="flex items-center"
@@ -206,16 +206,16 @@ export default function Navbar() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search movies, genres..."
-                      className="w-full text-xs pl-8 pr-8 py-2 rounded-full glass-input text-white outline-none"
+                      placeholder="Search..."
+                      className="w-full text-xs pl-8 pr-7 py-1.5 sm:py-2 rounded-full glass-input text-white outline-none"
                     />
-                    <FiSearch className="absolute left-2.5 top-2.5 text-slate-400" size={14} />
+                    <FiSearch className="absolute left-2.5 top-2.5 text-slate-400" size={13} />
                     <button
                       type="button"
                       onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
                       className="absolute right-2.5 top-2.5 text-slate-400 hover:text-white"
                     >
-                      <FiX size={14} />
+                      <FiX size={13} />
                     </button>
                   </div>
                 </motion.form>
@@ -224,7 +224,7 @@ export default function Navbar() {
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSearchOpen(true)}
-                  className="w-9 h-9 rounded-full glass hover:border-purple-500/50 text-slate-300 hover:text-white transition-all flex items-center justify-center"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full glass hover:border-purple-500/50 text-slate-300 hover:text-white transition-all flex items-center justify-center shrink-0"
                   title="Search Movies"
                 >
                   <FiSearch size={15} />
@@ -438,11 +438,11 @@ export default function Navbar() {
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link to="/login" className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-all">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Link to="/login" className="px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-slate-300 hover:text-white transition-all whitespace-nowrap hidden sm:inline-block">
                   Sign In
                 </Link>
-                <Link to="/register" className="btn-primary px-4 py-1.5 text-xs font-bold rounded-full shadow-lg glow-purple">
+                <Link to="/register" className="btn-primary px-3.5 sm:px-4.5 py-1.5 text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-full shadow-lg glow-purple whitespace-nowrap font-heading">
                   Get Started
                 </Link>
               </div>
@@ -450,10 +450,10 @@ export default function Navbar() {
 
             {/* Mobile Menu Toggle */}
             <button
-              className="md:hidden p-2 rounded-xl glass text-slate-300"
+              className="md:hidden p-2 rounded-xl glass text-slate-300 shrink-0"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              <FiMenu size={20} />
+              <FiMenu size={18} />
             </button>
           </div>
         </div>
@@ -526,6 +526,25 @@ export default function Navbar() {
                   </Link>
                 )}
               </div>
+
+              {!isAuthenticated && (
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 p-3 rounded-2xl text-xs font-bold text-slate-200 bg-slate-800/80 border border-slate-700/60 font-heading"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="btn-primary flex items-center justify-center gap-2 p-3 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg font-heading"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
