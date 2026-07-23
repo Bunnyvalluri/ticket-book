@@ -13,7 +13,7 @@ import { useSocket } from '../context/SocketContext.jsx';
 import toast from 'react-hot-toast';
 import {
   FiShield, FiCheckCircle, FiLock, FiClock, FiAlertCircle,
-  FiLoader, FiRefreshCw, FiZap, FiStar, FiFilm, FiMapPin,
+  FiLoader, FiRefreshCw, FiZap, FiFilm, FiMapPin,
 } from 'react-icons/fi';
 import { MdEventSeat } from 'react-icons/md';
 
