@@ -1,23 +1,28 @@
 # 🎬 CineMax — Movie Ticket Booking Platform
 
-CineMax is a production-ready, full-stack Movie Ticket Booking Platform featuring a premium dark-mode interface, real-time seat locking via WebSockets, secure payment simulations, and comprehensive admin controls.
+CineMax is a production-ready, full-stack Movie Ticket Booking Platform featuring a premium dark-mode interface, real-time seat locking via WebSockets, Firebase Authentication, secure payment simulations, and comprehensive admin controls.
+
+🌐 **Live Demo**: [https://ticket-book-2026.vercel.app](https://ticket-book-2026.vercel.app)
 
 ---
 
 ## ✨ Features
 
 ### 👤 Customer Experience
-* **Dynamic Catalog**: Browse trending, now showing, and coming-soon movies with ratings, trailers, and reviews.
-* **Smart Filtering**: Filter by genre, language, rating, and local cities.
-* **Real-time Seat Selection**: Interactive seat grid with live locking (using Socket.io) to prevent double bookings.
-* **Simulated Checkout**: Integration with a simulated payment gateway flow.
-* **Digital e-Ticket**: Printable ticket receipts with simulated scan-ready QR codes and automated email confirmations.
-* **User Profile**: Personal settings, password manager, and notification preferences.
+* **Dynamic Catalog**: Browse trending, now showing, and coming-soon movies with ratings, trailers, and audience reviews.
+* **Smart Filtering**: Filter by genre, language, format, rating, and local cities.
+* **Top-View Seat Selection**: Interactive top-view aerial seat map with real-time seat status indicators and zoom controls.
+* **Showtime Quick Switcher**: Easily switch between showtimes (e.g. 11:10 PM IMAX 3D, 02:10 AM Dolby Atmos, 12:10 AM IMAX 3D) directly on the seat matrix page with automatic top-view focus.
+* **Real-time Seat Locking**: Powered by Socket.io to prevent double bookings during active 10-minute sessions.
+* **Firebase Authentication**: Flexible sign-in options including Email/Password and Firebase integration.
+* **Simulated Checkout & Payments**: Seamless checkout flow with discount coupons and price breakdowns.
+* **Digital e-Tickets**: Printable ticket receipts featuring simulated scan-ready QR codes and automated booking receipts.
+* **User Profile & History**: Track personal booking history, view active tickets, and manage account preferences.
 
 ### 👑 Admin Controls
-* **Interactive Dashboard**: Real-time sales charts, revenue metrics, user growth analytics, and occupancy stats.
-* **Resource Management**: Complete UI to manage movies, theatres, screens, and show times.
-* **Coupon Engine**: Create and manage percentage, flat, or BOGO discount coupons.
+* **Interactive Dashboard**: Real-time sales charts, revenue metrics, user growth analytics, and screen occupancy stats.
+* **Resource Management**: Complete management interface for movies, theatres, screens, and show schedules.
+* **Coupon Engine**: Create and manage percentage, flat amount, or promotional discount coupons.
 
 ---
 
@@ -25,13 +30,15 @@ CineMax is a production-ready, full-stack Movie Ticket Booking Platform featurin
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
-| **Frontend** | React 19 + Vite | Fast, modern web application framework. |
-| **State & Query** | Zustand + React Query | Clean state management & query caching. |
-| **Styling** | Tailwind CSS v4 | Curated glassmorphic styling and HSL tokens. |
-| **Backend** | Node.js + Express | Highly scalable REST API. |
-| **Real-time** | Socket.io | Bidirectional connection for seat locking. |
-| **Database** | PostgreSQL + Prisma ORM | Normalized relational database schema. |
+| **Frontend** | React 19 + Vite | Fast, modern SPA framework. |
+| **State & Query** | Zustand + React Query | State management & query caching. |
+| **Styling** | Tailwind CSS v4 | Curated glassmorphic dark-mode styling. |
+| **Authentication** | Firebase Auth | Secure user authentication and token handling. |
+| **Backend** | Node.js + Express | Scalable REST API server. |
+| **Real-time** | Socket.io | Bidirectional WebSockets for seat locking. |
+| **Database** | PostgreSQL + Prisma ORM | Relational database schema with migrations. |
 | **Mailing** | Nodemailer | Transactional email confirmation templates. |
+| **Deployment** | Vercel & GitHub CI/CD | Automatic continuous deployment. |
 
 ---
 
@@ -41,9 +48,9 @@ CineMax is a production-ready, full-stack Movie Ticket Booking Platform featurin
 graph TD
     Client[React Client] <-->|HTTP / REST API| Express[Express Server]
     Client <-->|WebSockets / Seat Locks| Socket[Socket.io Server]
+    Client <-->|Auth Tokens| Firebase[Firebase Auth]
     Express -->|Prisma Client| DB[(PostgreSQL Database)]
     Express -->|Nodemailer| Mail[SMTP Email Service]
-    Express -->|Payment Gateway| Pay[Razorpay Gateway]
 ```
 
 ---
@@ -119,3 +126,10 @@ For testing the application, you can use the pre-seeded users:
 * **Admin Account**:
   * **Email**: `admin@cinemax.com`
   * **Password**: `Admin@1234`
+
+---
+
+## 🔗 Deployment
+
+- **Live URL**: [https://ticket-book-2026.vercel.app](https://ticket-book-2026.vercel.app)
+- **Repository**: [https://github.com/Bunnyvalluri/ticket-book](https://github.com/Bunnyvalluri/ticket-book)
