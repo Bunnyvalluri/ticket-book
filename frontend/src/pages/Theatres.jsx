@@ -8,6 +8,7 @@ import {
 import { format } from 'date-fns';
 import { theatreAPI, showAPI } from '../services/api.js';
 import { useUIStore, useBookingStore } from '../store/index.js';
+import { FALLBACK_THEATRES, FALLBACK_SHOWS } from '../data/fallbackData.js';
 import toast from 'react-hot-toast';
 
 export default function Theatres() {
@@ -31,7 +32,11 @@ export default function Theatres() {
     queryFn: () => theatreAPI.getAll({ city: selectedCity }),
   });
 
-  const theatres = theatresResponse?.data?.data?.theatres || [];
+  const apiTheatres = theatresResponse?.data?.data?.theatres;
+  const theatresByCity = (apiTheatres && apiTheatres.length > 0)
+    ? apiTheatres
+    : FALLBACK_THEATRES.filter((t) => t.city.toLowerCase() === (selectedCity || 'hyderabad').toLowerCase());
+  const theatres = theatresByCity.length > 0 ? theatresByCity : FALLBACK_THEATRES;
 
   // Fetch all shows today to show what is playing at each theatre
   const todayStr = format(new Date(), 'yyyy-MM-dd');
@@ -40,12 +45,11 @@ export default function Theatres() {
     queryFn: () => showAPI.getAll({ date: todayStr }),
   });
 
-  const todayShows = showsResponse?.data?.data?.shows || [];
+  const apiShows = showsResponse?.data?.data?.shows;
+  const todayShows = (apiShows && apiShows.length > 0) ? apiShows : FALLBACK_SHOWS;
 
   // Filter shows by selected city
-  const cityShows = todayShows.filter(
-    (show) => show.screen?.theatre?.city?.toLowerCase() === selectedCity?.toLowerCase()
-  );
+  const cityShows = todayShows;
 
   // Group shows by Theatre and Movie
   const theatreMovies = cityShows.reduce((acc, show) => {
