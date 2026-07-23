@@ -129,9 +129,9 @@ export default function MovieCard({ movie, index = 0 }) {
               </span>
             ) : <span />}
 
-            {movie.genres?.[0] && (
+            {(movie.genres?.[0]?.genre?.name || movie.genres?.[0]?.name) && (
               <span className="font-bold text-purple-400 text-[11px] font-heading">
-                {movie.genres[0].genre?.name}
+                {movie.genres[0].genre?.name || movie.genres[0].name}
               </span>
             )}
           </div>
