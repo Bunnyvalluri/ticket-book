@@ -9,6 +9,7 @@ import MovieSkeleton from '../components/movies/MovieSkeleton.jsx';
 import HeroBanner from '../components/home/HeroBanner.jsx';
 import MovieSlider from '../components/home/MovieSlider.jsx';
 import GenreFilter from '../components/home/GenreFilter.jsx';
+import { FALLBACK_MOVIES, FALLBACK_GENRES, FALLBACK_LANGUAGES } from '../data/fallbackData.js';
 import { FiFilter, FiSearch, FiX, FiStar, FiFilm, FiCalendar } from 'react-icons/fi';
 import { HiSparkles } from 'react-icons/hi2';
 
@@ -69,14 +70,35 @@ export default function Home() {
     staleTime: Infinity,
   });
 
+  // Safe fallback computed lists
+  const trendingMovies = trendingData?.data?.data?.movies?.length > 0
+    ? trendingData.data.data.movies
+    : FALLBACK_MOVIES.filter((m) => m.isTrending);
+
+  const nowShowingMovies = nowShowingData?.data?.data?.movies?.length > 0
+    ? nowShowingData.data.data.movies
+    : FALLBACK_MOVIES.filter((m) => m.status === 'NOW_SHOWING');
+
+  const comingSoonMovies = comingSoonData?.data?.data?.movies?.length > 0
+    ? comingSoonData.data.data.movies
+    : FALLBACK_MOVIES.filter((m) => m.status === 'COMING_SOON');
+
+  const genresList = genresData?.data?.data?.genres?.length > 0
+    ? genresData.data.data.genres
+    : FALLBACK_GENRES;
+
+  const languagesList = languagesData?.data?.data?.languages?.length > 0
+    ? languagesData.data.data.languages
+    : FALLBACK_LANGUAGES;
+
   const isFiltered = searchQuery || activeGenre || activeLanguage || minRating;
 
   return (
     <div className="min-h-screen pb-20">
       
       {/* Hero Showcase Banner */}
-      {!isFiltered && trendingData?.data?.data?.movies?.length > 0 && (
-        <HeroBanner movies={trendingData.data.data.movies} />
+      {!isFiltered && trendingMovies.length > 0 && (
+        <HeroBanner movies={trendingMovies} />
       )}
 
       <div className="container-app py-10">
@@ -113,7 +135,7 @@ export default function Home() {
 
           {/* Quick Genre Pills */}
           <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar flex-1">
-            {genresData?.data?.data?.genres?.map((genre) => (
+            {genresList.map((genre) => (
               <button
                 key={genre.id}
                 onClick={() => setActiveGenre(activeGenre === genre.slug ? '' : genre.slug)}
@@ -146,7 +168,7 @@ export default function Home() {
                     Languages
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {languagesData?.data?.data?.languages?.map((lang) => (
+                    {languagesList.map((lang) => (
                       <button
                         key={lang.id}
                         onClick={() => setActiveLanguage(activeLanguage === lang.code ? '' : lang.code)}
@@ -233,7 +255,7 @@ export default function Home() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                 {[...Array(12)].map((_, i) => <MovieSkeleton key={i} />)}
               </div>
-            ) : moviesData?.data?.data?.movies?.length === 0 ? (
+            ) : (moviesData?.data?.data?.movies || FALLBACK_MOVIES).length === 0 ? (
               <div className="text-center py-24 glass-card rounded-3xl border border-white/10 my-8">
                 <FiFilm className="text-5xl text-purple-400 mx-auto mb-3 opacity-60" />
                 <h3 className="text-lg font-bold text-white mb-1">No movies match your criteria</h3>
@@ -241,7 +263,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
-                {moviesData?.data?.data?.movies?.map((movie, i) => (
+                {(moviesData?.data?.data?.movies || FALLBACK_MOVIES).map((movie, i) => (
                   <MovieCard key={movie.id} movie={movie} index={i} />
                 ))}
               </div>
@@ -261,17 +283,17 @@ export default function Home() {
                 </div>
               </div>
 
-              {nsLoading ? (
+              {nsLoading && !nowShowingMovies.length ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                   {[...Array(5)].map((_, i) => <MovieSkeleton key={i} />)}
                 </div>
               ) : (
-                <MovieSlider movies={nowShowingData?.data?.data?.movies || []} />
+                <MovieSlider movies={nowShowingMovies} />
               )}
             </section>
 
             {/* Genre Categories */}
-            <GenreFilter genres={genresData?.data?.data?.genres || []} onSelect={setActiveGenre} active={activeGenre} />
+            <GenreFilter genres={genresList} onSelect={setActiveGenre} active={activeGenre} />
 
             {/* Coming Soon Section */}
             <section className="mb-16">
@@ -285,7 +307,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-5">
-                {comingSoonData?.data?.data?.movies?.map((movie, i) => (
+                {comingSoonMovies.map((movie, i) => (
                   <MovieCard key={movie.id} movie={movie} index={i} />
                 ))}
               </div>

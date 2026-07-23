@@ -13,6 +13,8 @@ import { useAuthStore, useUIStore, useBookingStore } from '../store/index.js';
 import { useSocket } from '../context/SocketContext.jsx';
 import LoadingScreen from '../components/ui/LoadingScreen.jsx';
 
+import { FALLBACK_MOVIES } from '../data/fallbackData.js';
+
 export default function MovieDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -46,12 +48,13 @@ export default function MovieDetail() {
   }, [socket, queryClient]);
 
   // Fetch movie details
-  const { data: movieResponse, isLoading: movieLoading, error: movieError } = useQuery({
+  const { data: movieResponse, isLoading: movieLoading } = useQuery({
     queryKey: ['movie', slug],
     queryFn: () => movieAPI.getBySlug(slug),
   });
 
-  const movie = movieResponse?.data?.data?.movie;
+  const apiMovie = movieResponse?.data?.data?.movie;
+  const movie = apiMovie || FALLBACK_MOVIES.find((m) => m.slug === slug) || FALLBACK_MOVIES[0];
 
   // Fetch shows for date
   const { data: showsResponse, isLoading: showsLoading } = useQuery({
