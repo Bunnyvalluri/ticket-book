@@ -267,13 +267,13 @@ export default function SeatSelection() {
             <div className="w-64 h-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-full mx-auto mt-2 shadow-lg glow-purple" />
           </div>
 
-          {/* Zoom Controls */}
-          <div className="hidden sm:flex items-center gap-2">
-            <button onClick={() => setZoom((z) => Math.max(0.6, z - 0.1))} className="p-2 rounded-xl glass-card text-slate-300 hover:text-white">
+          {/* Zoom Controls (Visible on all screens) */}
+          <div className="flex items-center gap-2 glass-card px-3 py-1.5 rounded-2xl border border-slate-700/60">
+            <button onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} className="p-1 text-slate-300 hover:text-white">
               <FiZoomOut size={16} />
             </button>
-            <span className="text-xs font-semibold text-slate-400">{Math.round(zoom * 100)}%</span>
-            <button onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))} className="p-2 rounded-xl glass-card text-slate-300 hover:text-white">
+            <span className="text-xs font-bold text-slate-300 font-numeric">{Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))} className="p-1 text-slate-300 hover:text-white">
               <FiZoomIn size={16} />
             </button>
           </div>

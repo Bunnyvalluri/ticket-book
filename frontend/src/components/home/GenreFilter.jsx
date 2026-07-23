@@ -18,7 +18,7 @@ export default function GenreFilter({ genres = [], onSelect, active }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
         {genres.map((genre, i) => {
           const isActive = active === genre.slug;
           const colorHex = genre.colorHex || '#7c3aed';

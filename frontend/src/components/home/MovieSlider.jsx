@@ -29,7 +29,7 @@ export default function MovieSlider({ movies = [] }) {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {movies.map((movie, i) => (
-          <div key={movie.id || i} className="shrink-0 w-[200px] sm:w-[220px]">
+          <div key={movie.id || i} className="shrink-0 w-[160px] sm:w-[200px] md:w-[220px] lg:w-[230px]">
             <MovieCard movie={movie} index={i} />
           </div>
         ))}

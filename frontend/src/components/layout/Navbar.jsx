@@ -465,25 +465,66 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-white/10 mt-3 pt-3 pb-2"
+              className="md:hidden mt-3 pt-4 pb-4 border-t border-slate-800 glass-card rounded-3xl p-5 shadow-2xl space-y-4"
             >
-              <div className="flex flex-col gap-2">
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Popular Cities</div>
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {CITIES.slice(0, 5).map((c) => (
+              {/* City Selection Bar */}
+              <div className="space-y-2">
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-heading flex items-center gap-1.5">
+                  <FiMapPin className="text-purple-400" size={12} />
+                  Select City: <span className="text-purple-300 font-bold">{selectedCity}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {CITIES.map((c) => (
                     <button
                       key={c}
                       onClick={() => { setCity(c); setMobileMenuOpen(false); }}
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        c === selectedCity ? 'bg-purple-600 text-white' : 'bg-white/5 text-slate-300'
+                      className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                        c === selectedCity
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md font-numeric'
+                          : 'bg-slate-800/80 text-slate-300 hover:text-white border border-slate-700/60'
                       }`}
                     >
                       {c}
                     </button>
                   ))}
                 </div>
-                <Link to="/" className="py-2 text-sm font-semibold text-slate-200" onClick={() => setMobileMenuOpen(false)}>Movies</Link>
-                <Link to="/theatres" className="py-2 text-sm font-semibold text-slate-200" onClick={() => setMobileMenuOpen(false)}>Theatres</Link>
+              </div>
+
+              {/* Mobile Quick Nav Links */}
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                <Link
+                  to="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-2xl text-xs font-black uppercase tracking-wider font-heading transition-all ${
+                    location.pathname === '/'
+                      ? 'gradient-bg text-white shadow-lg glow-purple'
+                      : 'bg-slate-800/80 text-slate-200 border border-slate-700/60'
+                  }`}
+                >
+                  <FiFilm size={14} /> Movies
+                </Link>
+
+                <Link
+                  to="/theatres"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-2xl text-xs font-black uppercase tracking-wider font-heading transition-all ${
+                    location.pathname === '/theatres'
+                      ? 'gradient-bg text-white shadow-lg glow-purple'
+                      : 'bg-slate-800/80 text-slate-200 border border-slate-700/60'
+                  }`}
+                >
+                  <FiTv size={14} /> Theatres
+                </Link>
+
+                {isAdmin && (
+                  <Link
+                    to="/admin/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-2xl text-xs font-black uppercase tracking-wider font-heading bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-md"
+                  >
+                    <FiShield size={14} /> Admin Dashboard
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}

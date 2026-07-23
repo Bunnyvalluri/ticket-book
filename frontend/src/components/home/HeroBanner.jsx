@@ -126,10 +126,10 @@ export default function HeroBanner({ movies = [] }) {
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-4">
                 <Link
                   to={`/movies/${movie.slug}`}
-                  className="btn-primary px-8 py-3.5 text-sm font-bold rounded-2xl flex items-center gap-2 shadow-2xl glow-purple"
+                  className="btn-primary px-8 py-3.5 text-xs sm:text-sm font-black uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-2xl glow-purple font-heading"
                 >
                   <span>🎫 Book Tickets Now</span>
                 </Link>
@@ -137,7 +137,7 @@ export default function HeroBanner({ movies = [] }) {
                 {movie.trailerUrl && (
                   <button
                     onClick={() => setIsPlaying(true)}
-                    className="px-6 py-3.5 rounded-2xl font-bold text-sm text-white glass-card hover:border-purple-500/50 hover:bg-white/10 transition-all flex items-center gap-2"
+                    className="px-6 py-3.5 rounded-2xl font-bold text-xs sm:text-sm text-white glass-card hover:border-purple-500/50 hover:bg-white/10 transition-all flex items-center justify-center gap-2 font-heading tracking-wide"
                   >
                     <FiPlay size={16} className="fill-white text-white" />
                     Watch Official Trailer
