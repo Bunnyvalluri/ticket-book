@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { movieAPI } from '../services/api.js';
@@ -9,7 +9,8 @@ import MovieSkeleton from '../components/movies/MovieSkeleton.jsx';
 import HeroBanner from '../components/home/HeroBanner.jsx';
 import MovieSlider from '../components/home/MovieSlider.jsx';
 import GenreFilter from '../components/home/GenreFilter.jsx';
-import { FiFilter, FiSearch, FiX, FiStar } from 'react-icons/fi';
+import { FiFilter, FiSearch, FiX, FiStar, FiFilm, FiCalendar } from 'react-icons/fi';
+import { HiSparkles } from 'react-icons/hi2';
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,19 +24,19 @@ export default function Home() {
   const searchQuery = searchParams.get('search') || '';
   const { selectedCity } = useUIStore();
 
-  // Trending movies for hero
+  // Trending movies for hero banner
   const { data: trendingData } = useQuery({
     queryKey: ['trending-movies'],
     queryFn: () => movieAPI.getTrending({ limit: 5 }),
   });
 
-  // Now showing
+  // Now showing movies
   const { data: nowShowingData, isLoading: nsLoading } = useQuery({
     queryKey: ['now-showing', selectedCity],
     queryFn: () => movieAPI.getNowShowing({ limit: 10, city: selectedCity }),
   });
 
-  // Coming soon
+  // Coming soon movies
   const { data: comingSoonData } = useQuery({
     queryKey: ['coming-soon'],
     queryFn: () => movieAPI.getComingSoon({ limit: 8 }),
@@ -71,55 +72,56 @@ export default function Home() {
   const isFiltered = searchQuery || activeGenre || activeLanguage || minRating;
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Banner */}
+    <div className="min-h-screen pb-20">
+      
+      {/* Hero Showcase Banner */}
       {!isFiltered && trendingData?.data?.data?.movies?.length > 0 && (
         <HeroBanner movies={trendingData.data.data.movies} />
       )}
 
       <div className="container-app py-10">
-        {/* Filters Bar */}
+        
+        {/* Interactive Filter Toolbar */}
         <div className="flex flex-wrap items-center gap-3 mb-8">
+          
           {searchQuery && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full text-sm" style={{ background: '#1a1a2e', border: '1px solid #7c3aed', color: '#a78bfa' }}>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold glass-card border border-purple-500/50 text-purple-300">
               <FiSearch size={14} />
-              <span>"{searchQuery}"</span>
+              <span>Search: "{searchQuery}"</span>
               <button onClick={() => { setSearchParams({}); }} className="ml-1 hover:text-white">
                 <FiX size={14} />
               </button>
             </div>
           )}
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setFilterOpen(!filterOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all"
-            style={{
-              background: filterOpen ? '#7c3aed' : '#1a1a2e',
-              border: `1px solid ${filterOpen ? '#7c3aed' : '#2d2d4a'}`,
-              color: filterOpen ? 'white' : '#a0a0c0',
-            }}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all glass-card ${
+              filterOpen ? 'bg-purple-600 text-white border-purple-400' : 'text-slate-300 hover:text-white'
+            }`}
           >
             <FiFilter size={14} />
-            Filters
+            <span>Filters</span>
             {(activeGenre || activeLanguage || minRating) && (
-              <span className="w-4 h-4 text-[10px] font-bold rounded-full flex items-center justify-center" style={{ background: '#ec4899', color: 'white' }}>
+              <span className="w-5 h-5 text-[10px] font-extrabold rounded-full flex items-center justify-center bg-pink-500 text-white shadow-md">
                 {[activeGenre, activeLanguage, minRating].filter(Boolean).length}
               </span>
             )}
-          </button>
+          </motion.button>
 
-          {/* Genre pills */}
+          {/* Quick Genre Pills */}
           <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar flex-1">
             {genresData?.data?.data?.genres?.map((genre) => (
               <button
                 key={genre.id}
                 onClick={() => setActiveGenre(activeGenre === genre.slug ? '' : genre.slug)}
-                className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-medium transition-all"
-                style={{
-                  background: activeGenre === genre.slug ? genre.colorHex + '30' : '#1a1a2e',
-                  border: `1px solid ${activeGenre === genre.slug ? genre.colorHex : '#2d2d4a'}`,
-                  color: activeGenre === genre.slug ? genre.colorHex : '#a0a0c0',
-                }}
+                className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all glass-card ${
+                  activeGenre === genre.slug
+                    ? 'bg-purple-600/30 text-purple-300 border-purple-500/50 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
               >
                 {genre.name}
               </button>
@@ -127,31 +129,32 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Expanded Filters */}
+        {/* Filter Drawer */}
         <AnimatePresence>
           {filterOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-8 p-6 rounded-2xl"
-              style={{ background: '#1a1a2e', border: '1px solid #2d2d4a' }}
+              className="mb-10 p-6 rounded-3xl glass-card border border-white/15 shadow-2xl"
             >
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {/* Language */}
+                
+                {/* Languages Filter */}
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-3 block" style={{ color: '#606080' }}>Language</label>
+                  <label className="text-[11px] font-bold uppercase tracking-wider mb-3 text-slate-400 block">
+                    Languages
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     {languagesData?.data?.data?.languages?.map((lang) => (
                       <button
                         key={lang.id}
                         onClick={() => setActiveLanguage(activeLanguage === lang.code ? '' : lang.code)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                        style={{
-                          background: activeLanguage === lang.code ? 'rgba(124,58,237,0.2)' : '#12121e',
-                          border: `1px solid ${activeLanguage === lang.code ? '#7c3aed' : '#2d2d4a'}`,
-                          color: activeLanguage === lang.code ? '#a78bfa' : '#a0a0c0',
-                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                          activeLanguage === lang.code
+                            ? 'bg-purple-600 text-white shadow-md'
+                            : 'glass-card text-slate-300 hover:text-white'
+                        }`}
                       >
                         {lang.name}
                       </button>
@@ -159,40 +162,43 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Rating */}
+                {/* Rating Filter */}
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-3 block" style={{ color: '#606080' }}>Min IMDb Rating</label>
+                  <label className="text-[11px] font-bold uppercase tracking-wider mb-3 text-slate-400 block">
+                    Min IMDb Score
+                  </label>
                   <div className="flex gap-2">
                     {[6, 7, 7.5, 8, 8.5].map((r) => (
                       <button
                         key={r}
                         onClick={() => setMinRating(minRating == r ? '' : r)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1"
-                        style={{
-                          background: minRating == r ? 'rgba(245,158,11,0.2)' : '#12121e',
-                          border: `1px solid ${minRating == r ? '#f59e0b' : '#2d2d4a'}`,
-                          color: minRating == r ? '#f59e0b' : '#a0a0c0',
-                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 ${
+                          minRating == r
+                            ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                            : 'glass-card text-slate-300 hover:text-amber-400'
+                        }`}
                       >
-                        <FiStar size={10} />
+                        <FiStar size={11} className={minRating == r ? 'fill-slate-950' : 'fill-yellow-400'} />
                         {r}+
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Sort */}
+                {/* Sort dropdown */}
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-3 block" style={{ color: '#606080' }}>Sort By</label>
+                  <label className="text-[11px] font-bold uppercase tracking-wider mb-3 text-slate-400 block">
+                    Sort By
+                  </label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="input-field text-sm"
+                    className="glass-input text-xs rounded-xl p-2.5 w-full outline-none"
                   >
-                    <option value="createdAt">Latest</option>
-                    <option value="releaseDate">Release Date</option>
-                    <option value="imdbRating">IMDb Rating</option>
-                    <option value="title">Title A-Z</option>
+                    <option value="createdAt" className="bg-slate-900">Recently Added</option>
+                    <option value="releaseDate" className="bg-slate-900">Release Date</option>
+                    <option value="imdbRating" className="bg-slate-900">Top IMDb Rating</option>
+                    <option value="title" className="bg-slate-900">Title (A-Z)</option>
                   </select>
                 </div>
               </div>
@@ -200,40 +206,41 @@ export default function Home() {
               {(activeGenre || activeLanguage || minRating) && (
                 <button
                   onClick={() => { setActiveGenre(''); setActiveLanguage(''); setMinRating(''); }}
-                  className="mt-4 text-sm flex items-center gap-1"
-                  style={{ color: '#ef4444' }}
+                  className="mt-5 text-xs font-semibold text-pink-400 hover:text-pink-300 flex items-center gap-1"
                 >
-                  <FiX size={14} /> Clear all filters
+                  <FiX size={14} /> Clear all active filters
                 </button>
               )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Filtered Results */}
+        {/* Display Movies Grid / Sections */}
         {isFiltered ? (
           <div>
-            <h2 className="text-xl font-bold mb-6" style={{ color: '#f0f0f8' }}>
-              {searchQuery ? `Results for "${searchQuery}"` : 'Filtered Movies'}
-              {moviesData?.data?.data?.pagination?.total > 0 && (
-                <span className="text-sm font-normal ml-2" style={{ color: '#606080' }}>
-                  ({moviesData.data.data.pagination.total} found)
-                </span>
-              )}
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-white">
+                {searchQuery ? `Search Results for "${searchQuery}"` : 'Filtered Blockbusters'}
+                {moviesData?.data?.data?.pagination?.total > 0 && (
+                  <span className="text-xs font-normal text-slate-400 ml-2">
+                    ({moviesData.data.data.pagination.total} movies found)
+                  </span>
+                )}
+              </h2>
+            </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                 {[...Array(12)].map((_, i) => <MovieSkeleton key={i} />)}
               </div>
             ) : moviesData?.data?.data?.movies?.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="text-5xl mb-4">🎬</div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: '#f0f0f8' }}>No movies found</h3>
-                <p style={{ color: '#606080' }}>Try adjusting your filters or search query</p>
+              <div className="text-center py-24 glass-card rounded-3xl border border-white/10 my-8">
+                <FiFilm className="text-5xl text-purple-400 mx-auto mb-3 opacity-60" />
+                <h3 className="text-lg font-bold text-white mb-1">No movies match your criteria</h3>
+                <p className="text-xs text-slate-400">Try tweaking your filters or search keywords</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                 {moviesData?.data?.data?.movies?.map((movie, i) => (
                   <MovieCard key={movie.id} movie={movie} index={i} />
                 ))}
@@ -242,22 +249,20 @@ export default function Home() {
           </div>
         ) : (
           <>
-            {/* Now Showing */}
-            <section className="mb-14">
+            {/* Now Showing Section */}
+            <section className="mb-16">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold" style={{ color: '#f0f0f8' }}>
-                    🎭 Now Showing
+                  <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                    <HiSparkles className="text-purple-400" />
+                    Now Showing
                   </h2>
-                  <p className="text-sm mt-1" style={{ color: '#606080' }}>Currently in theatres in {selectedCity}</p>
+                  <p className="text-xs text-slate-400 mt-1">Experience live blockbusters in {selectedCity}</p>
                 </div>
-                <button className="text-sm font-medium" style={{ color: '#7c3aed' }}>
-                  See All →
-                </button>
               </div>
 
               {nsLoading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                   {[...Array(5)].map((_, i) => <MovieSkeleton key={i} />)}
                 </div>
               ) : (
@@ -265,18 +270,21 @@ export default function Home() {
               )}
             </section>
 
-            {/* Genre Showcase */}
+            {/* Genre Categories */}
             <GenreFilter genres={genresData?.data?.data?.genres || []} onSelect={setActiveGenre} active={activeGenre} />
 
-            {/* Coming Soon */}
-            <section className="mb-14">
+            {/* Coming Soon Section */}
+            <section className="mb-16">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold" style={{ color: '#f0f0f8' }}>🔜 Coming Soon</h2>
-                  <p className="text-sm mt-1" style={{ color: '#606080' }}>Releasing in theatres near you</p>
+                  <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                    <FiCalendar className="text-pink-400" />
+                    Coming Soon
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-1">Upcoming releases & premiere tickets</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-5">
                 {comingSoonData?.data?.data?.movies?.map((movie, i) => (
                   <MovieCard key={movie.id} movie={movie} index={i} />
                 ))}
@@ -284,6 +292,7 @@ export default function Home() {
             </section>
           </>
         )}
+
       </div>
     </div>
   );

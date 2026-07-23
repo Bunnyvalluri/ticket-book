@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import {
   FiSearch, FiX, FiBell, FiUser, FiLogOut, FiBookmark,
   FiHeart, FiSettings, FiChevronDown, FiMenu, FiFilm,
-  FiMapPin, FiShield
+  FiMapPin, FiShield, FiCheckCircle, FiClock
 } from 'react-icons/fi';
 
 const CITIES = ['Hyderabad', 'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad'];
@@ -87,53 +87,68 @@ export default function Navbar() {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
+      transition={{ type: 'spring', damping: 20, stiffness: 120 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'glass shadow-2xl' : 'bg-transparent'
+        scrolled ? 'glass py-3 shadow-2xl border-b border-white/10' : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent py-4'
       }`}
     >
       <div className="container-app">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+        <div className="flex items-center justify-between h-14">
+          
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center gap-3 group">
             <motion.div
               whileHover={{ rotate: 15, scale: 1.1 }}
-              className="text-2xl"
-            >🎬</motion.div>
-            <span className="text-xl font-black gradient-text hidden sm:block">CineMax</span>
+              whileTap={{ scale: 0.95 }}
+              className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white shadow-lg glow-purple"
+            >
+              <FiFilm className="text-xl" />
+            </motion.div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-black tracking-tight gradient-text leading-none">
+                CineMax
+              </span>
+              <span className="text-[10px] font-semibold text-purple-400/80 tracking-widest uppercase -mt-0.5">
+                Cinema Pass
+              </span>
+            </div>
           </Link>
 
           {/* City Selector */}
           <div className="relative hidden md:block">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
               onClick={() => setCityDropdown(!cityDropdown)}
-              className="flex items-center gap-1.5 text-sm font-medium transition-all"
-              style={{ color: '#a0a0c0' }}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card text-xs font-semibold hover:border-purple-500/50 transition-all"
             >
-              <FiMapPin className="text-purple-500" size={14} />
-              <span style={{ color: '#f0f0f8' }}>{selectedCity}</span>
-              <FiChevronDown size={14} className={`transition-transform ${cityDropdown ? 'rotate-180' : ''}`} />
-            </button>
+              <FiMapPin className="text-purple-400 animate-pulse" size={14} />
+              <span className="text-slate-200">{selectedCity}</span>
+              <FiChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${cityDropdown ? 'rotate-180 text-purple-400' : ''}`} />
+            </motion.button>
 
             <AnimatePresence>
               {cityDropdown && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-8 left-0 glass rounded-xl p-2 min-w-[160px] shadow-2xl"
-                  style={{ zIndex: 1000 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-10 left-0 glass-card rounded-2xl p-2 min-w-[180px] shadow-2xl z-50"
                 >
+                  <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Select Location
+                  </div>
                   {CITIES.map((city) => (
                     <button
                       key={city}
                       onClick={() => { setCity(city); setCityDropdown(false); }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${
                         city === selectedCity
-                          ? 'bg-purple-600/20 text-purple-400'
-                          : 'text-gray-300 hover:bg-white/5'
+                          ? 'bg-purple-600/30 text-purple-300 font-semibold border border-purple-500/40'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       {city}
+                      {city === selectedCity && <FiCheckCircle className="text-purple-400" size={13} />}
                     </button>
                   ))}
                 </motion.div>
@@ -141,78 +156,97 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* Nav Links */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link to="/" className="text-sm font-medium transition-all" style={{ color: location.pathname === '/' ? '#7c3aed' : '#a0a0c0' }}>
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
+            <Link
+              to="/"
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                location.pathname === '/' 
+                  ? 'gradient-bg text-white shadow-md' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
               Movies
             </Link>
-            <Link to="/theatres" className="text-sm font-medium transition-all" style={{ color: location.pathname === '/theatres' ? '#7c3aed' : '#a0a0c0' }}>
+            <Link
+              to="/theatres"
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                location.pathname === '/theatres' 
+                  ? 'gradient-bg text-white shadow-md' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
               Theatres
             </Link>
             {isAdmin && (
-              <Link to="/admin/dashboard" className="text-sm font-medium" style={{ color: '#f59e0b' }}>
-                <FiShield className="inline mr-1" size={14} />
+              <Link
+                to="/admin/dashboard"
+                className="px-4 py-1.5 rounded-full text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 hover:bg-amber-500/10 transition-all"
+              >
+                <FiShield size={13} />
                 Admin
               </Link>
             )}
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2">
-            {/* Search */}
+          <div className="flex items-center gap-3">
+            
+            {/* Search Input Bar */}
             <AnimatePresence>
               {isSearchOpen ? (
                 <motion.form
                   initial={{ width: 40, opacity: 0 }}
-                  animate={{ width: 240, opacity: 1 }}
+                  animate={{ width: 260, opacity: 1 }}
                   exit={{ width: 40, opacity: 0 }}
                   onSubmit={handleSearch}
                   className="flex items-center"
                 >
-                  <input
-                    ref={searchRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search movies..."
-                    className="w-full text-sm px-4 py-2 rounded-l-lg outline-none"
-                    style={{ background: '#1e1e35', border: '1px solid #3d3d5c', color: '#f0f0f8' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
-                    className="px-3 py-2 rounded-r-lg"
-                    style={{ background: '#1e1e35', border: '1px solid #3d3d5c', borderLeft: 'none', color: '#a0a0c0' }}
-                  >
-                    <FiX size={16} />
-                  </button>
+                  <div className="relative w-full">
+                    <input
+                      ref={searchRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search movies, genres..."
+                      className="w-full text-xs pl-8 pr-8 py-2 rounded-full glass-input text-white outline-none"
+                    />
+                    <FiSearch className="absolute left-2.5 top-2.5 text-slate-400" size={14} />
+                    <button
+                      type="button"
+                      onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
+                      className="absolute right-2.5 top-2.5 text-slate-400 hover:text-white"
+                    >
+                      <FiX size={14} />
+                    </button>
+                  </div>
                 </motion.form>
               ) : (
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSearchOpen(true)}
-                  className="btn-ghost p-2 rounded-xl"
+                  className="p-2.5 rounded-full glass hover:border-purple-500/50 text-slate-300 hover:text-white transition-all"
+                  title="Search Movies"
                 >
-                  <FiSearch size={18} />
+                  <FiSearch size={16} />
                 </motion.button>
               )}
             </AnimatePresence>
 
             {isAuthenticated ? (
               <>
-                {/* Notifications */}
+                {/* Notifications Dropdown */}
                 <div className="relative">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setNotifDropdown(!notifDropdown); setUserDropdown(false); }}
-                    className="btn-ghost p-2 rounded-xl relative"
+                    className="p-2.5 rounded-full glass hover:border-purple-500/50 text-slate-300 hover:text-white transition-all relative"
                   >
-                    <FiBell size={18} />
+                    <FiBell size={16} />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold flex items-center justify-center rounded-full"
-                        style={{ background: '#ec4899', color: 'white' }}>
+                      <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold flex items-center justify-center rounded-full bg-pink-500 text-white animate-pulse shadow-md">
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
                     )}
@@ -221,18 +255,21 @@ export default function Navbar() {
                   <AnimatePresence>
                     {notifDropdown && (
                       <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        className="absolute right-0 top-10 glass rounded-2xl overflow-hidden shadow-2xl w-[320px] md:w-[360px]"
-                        style={{ zIndex: 1000 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 top-12 glass-card rounded-2xl overflow-hidden shadow-2xl w-[320px] md:w-[360px] z-50"
                       >
-                        <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#2d2d4a' }}>
+                        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
                           <div>
-                            <h3 className="font-bold text-sm text-white">Notifications</h3>
-                            <p className="text-[10px]" style={{ color: '#606080' }}>
-                              You have {unreadCount} unread notifications
-                            </p>
+                            <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                              Notifications
+                              {unreadCount > 0 && (
+                                <span className="px-2 py-0.5 text-[10px] rounded-full bg-purple-500/30 text-purple-300 font-semibold border border-purple-500/40">
+                                  {unreadCount} new
+                                </span>
+                              )}
+                            </h3>
                           </div>
                           <div className="flex gap-2 text-xs">
                             {unreadCount > 0 && (
@@ -241,17 +278,17 @@ export default function Navbar() {
                               </button>
                             )}
                             {notifications.length > 0 && (
-                              <button onClick={handleClearAll} className="text-red-400 hover:text-red-300 font-semibold cursor-pointer">
-                                Clear all
+                              <button onClick={handleClearAll} className="text-pink-400 hover:text-pink-300 font-semibold cursor-pointer">
+                                Clear
                               </button>
                             )}
                           </div>
                         </div>
 
-                        <div className="max-h-[300px] overflow-y-auto scrollbar-thin divide-y" style={{ divideColor: '#2d2d4a' }}>
+                        <div className="max-h-[320px] overflow-y-auto divide-y divide-white/5">
                           {notifications.length === 0 ? (
-                            <div className="p-8 text-center text-xs" style={{ color: '#606080' }}>
-                              <FiBell className="mx-auto mb-2 text-lg opacity-40" />
+                            <div className="p-8 text-center text-xs text-slate-400">
+                              <FiBell className="mx-auto mb-2 text-2xl text-slate-500 opacity-60" />
                               No notifications yet
                             </div>
                           ) : (
@@ -263,21 +300,22 @@ export default function Navbar() {
                                   if (notif.data?.bookingId) navigate(`/bookings/${notif.data.bookingId}/ticket`);
                                   setNotifDropdown(false);
                                 }}
-                                className={`p-4 text-left transition-all hover:bg-white/5 cursor-pointer flex gap-3 relative ${
-                                  !notif.isRead ? 'bg-purple-950/15' : ''
+                                className={`p-3.5 text-left transition-all hover:bg-white/5 cursor-pointer flex gap-3 relative ${
+                                  !notif.isRead ? 'bg-purple-600/10' : ''
                                 }`}
                               >
                                 {!notif.isRead && (
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 absolute left-2 top-[22px] shrink-0 animate-pulse" />
+                                  <span className="w-2 h-2 rounded-full bg-pink-500 absolute left-2 top-4 shrink-0 animate-ping" />
                                 )}
-                                <div className="pl-1">
-                                  <p className="font-bold text-xs text-white leading-tight flex items-center justify-between">
-                                    {notif.title}
-                                    <span className="text-[9px] font-normal" style={{ color: '#606080' }}>
+                                <div className="pl-1 w-full">
+                                  <div className="flex items-center justify-between">
+                                    <p className="font-bold text-xs text-slate-100">{notif.title}</p>
+                                    <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                                      <FiClock size={10} />
                                       {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
-                                  </p>
-                                  <p className="text-[11px] mt-1 leading-normal" style={{ color: notif.isRead ? '#8080a0' : '#a0a0c0' }}>
+                                  </div>
+                                  <p className="text-[11px] mt-1 text-slate-300 leading-snug">
                                     {notif.message}
                                   </p>
                                 </div>
@@ -290,68 +328,74 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
 
-                {/* User Menu */}
+                {/* User Card Dropdown */}
                 <div className="relative">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={() => setUserDropdown(!userDropdown)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all"
-                    style={{ background: userDropdown ? '#1e1e35' : 'transparent', border: '1px solid transparent' }}
+                    className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full glass hover:border-purple-500/50 transition-all"
                   >
                     {user?.avatarUrl ? (
-                      <img src={user.avatarUrl} className="w-7 h-7 rounded-full object-cover" alt="avatar" />
+                      <img src={user.avatarUrl} className="w-7 h-7 rounded-full object-cover border border-purple-400" alt="avatar" />
                     ) : (
-                      <div className="w-7 h-7 rounded-full gradient-bg flex items-center justify-center text-white text-xs font-bold">
+                      <div className="w-7 h-7 rounded-full gradient-bg flex items-center justify-center text-white text-xs font-bold shadow-md">
                         {user?.firstName?.[0]}{user?.lastName?.[0]}
                       </div>
                     )}
-                    <span className="text-sm font-medium hidden sm:block" style={{ color: '#f0f0f8' }}>
+                    <span className="text-xs font-semibold text-slate-200 hidden sm:block">
                       {user?.firstName}
                     </span>
-                    <FiChevronDown size={14} style={{ color: '#a0a0c0' }} className={`transition-transform ${userDropdown ? 'rotate-180' : ''}`} />
+                    <FiChevronDown size={13} className={`text-slate-400 transition-transform ${userDropdown ? 'rotate-180 text-purple-400' : ''}`} />
                   </motion.button>
 
                   <AnimatePresence>
                     {userDropdown && (
                       <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        className="absolute right-0 top-10 glass rounded-xl overflow-hidden shadow-2xl min-w-[200px]"
-                        style={{ zIndex: 1000 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 top-12 glass-card rounded-2xl overflow-hidden shadow-2xl min-w-[220px] z-50"
                       >
-                        <div className="p-3 border-b" style={{ borderColor: '#2d2d4a' }}>
-                          <p className="font-semibold text-sm" style={{ color: '#f0f0f8' }}>{user?.firstName} {user?.lastName}</p>
-                          <p className="text-xs" style={{ color: '#606080' }}>{user?.email}</p>
+                        <div className="p-3.5 border-b border-white/10 bg-white/5">
+                          <p className="font-bold text-xs text-white">{user?.firstName} {user?.lastName}</p>
+                          <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
+                          {isAdmin && (
+                            <span className="inline-block mt-1.5 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              Admin Access
+                            </span>
+                          )}
                         </div>
 
-                        {[
-                          { icon: FiUser, label: 'Profile', to: '/profile' },
-                          { icon: FiFilm, label: 'My Bookings', to: '/bookings' },
-                          { icon: FiHeart, label: 'Favorites', to: '/profile?tab=favorites' },
-                          { icon: FiSettings, label: 'Settings', to: '/profile?tab=settings' },
-                          ...(isAdmin ? [{ icon: FiShield, label: 'Admin Panel', to: '/admin/dashboard', special: true }] : []),
-                        ].map(({ icon: Icon, label, to, special }) => (
-                          <Link
-                            key={label}
-                            to={to}
-                            onClick={() => setUserDropdown(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm transition-all hover:bg-white/5"
-                            style={{ color: special ? '#f59e0b' : '#a0a0c0' }}
-                          >
-                            <Icon size={15} />
-                            {label}
-                          </Link>
-                        ))}
+                        <div className="p-1">
+                          {[
+                            { icon: FiUser, label: 'Profile Settings', to: '/profile' },
+                            { icon: FiFilm, label: 'My Tickets & Bookings', to: '/bookings' },
+                            { icon: FiHeart, label: 'Wishlist & Favorites', to: '/profile?tab=favorites' },
+                            ...(isAdmin ? [{ icon: FiShield, label: 'Admin Portal', to: '/admin/dashboard', special: true }] : []),
+                          ].map(({ icon: Icon, label, to, special }) => (
+                            <Link
+                              key={label}
+                              to={to}
+                              onClick={() => setUserDropdown(false)}
+                              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                                special
+                                  ? 'text-amber-400 hover:bg-amber-500/10'
+                                  : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                              }`}
+                            >
+                              <Icon size={15} />
+                              {label}
+                            </Link>
+                          ))}
+                        </div>
 
-                        <div className="border-t" style={{ borderColor: '#2d2d4a' }}>
+                        <div className="p-1 border-t border-white/10">
                           <button
                             onClick={() => { handleLogout(); setUserDropdown(false); }}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm w-full text-left transition-all hover:bg-red-500/10"
-                            style={{ color: '#ef4444' }}
+                            className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold w-full text-left text-pink-400 hover:bg-pink-500/10 transition-all"
                           >
                             <FiLogOut size={15} />
-                            Logout
+                            Log Out
                           </button>
                         </div>
                       </motion.div>
@@ -361,16 +405,18 @@ export default function Navbar() {
               </>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="btn-ghost px-4 py-2 text-sm rounded-lg">Sign In</Link>
-                <Link to="/register" className="btn-primary px-4 py-2 text-sm rounded-lg">
-                  Join Now
+                <Link to="/login" className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-all">
+                  Sign In
+                </Link>
+                <Link to="/register" className="btn-primary px-4 py-1.5 text-xs font-bold rounded-full shadow-lg glow-purple">
+                  Get Started
                 </Link>
               </div>
             )}
 
-            {/* Mobile menu */}
+            {/* Mobile Menu Toggle */}
             <button
-              className="md:hidden btn-ghost p-2 rounded-xl"
+              className="md:hidden p-2 rounded-xl glass text-slate-300"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <FiMenu size={20} />
@@ -378,34 +424,39 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t py-4"
-              style={{ borderColor: '#2d2d4a' }}
+              className="md:hidden border-t border-white/10 mt-3 pt-3 pb-2"
             >
-              <div className="flex flex-col gap-3">
-                {CITIES.slice(0, 4).map((c) => (
-                  <button key={c} onClick={() => { setCity(c); setMobileMenuOpen(false); }}
-                    className="text-left px-2 py-1 text-sm" style={{ color: c === selectedCity ? '#7c3aed' : '#a0a0c0' }}>
-                    {c}
-                  </button>
-                ))}
-                <div className="border-t pt-3" style={{ borderColor: '#2d2d4a' }}>
-                  <Link to="/" className="block py-2 text-sm" style={{ color: '#a0a0c0' }} onClick={() => setMobileMenuOpen(false)}>Movies</Link>
-                  <Link to="/theatres" className="block py-2 text-sm" style={{ color: '#a0a0c0' }} onClick={() => setMobileMenuOpen(false)}>Theatres</Link>
+              <div className="flex flex-col gap-2">
+                <div className="text-[10px] font-bold text-slate-400 uppercase">Popular Cities</div>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {CITIES.slice(0, 5).map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => { setCity(c); setMobileMenuOpen(false); }}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        c === selectedCity ? 'bg-purple-600 text-white' : 'bg-white/5 text-slate-300'
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
                 </div>
+                <Link to="/" className="py-2 text-sm font-semibold text-slate-200" onClick={() => setMobileMenuOpen(false)}>Movies</Link>
+                <Link to="/theatres" className="py-2 text-sm font-semibold text-slate-200" onClick={() => setMobileMenuOpen(false)}>Theatres</Link>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Click outside handler */}
+      {/* Backdrop overlay for open menus */}
       {(cityDropdown || userDropdown || notifDropdown) && (
         <div className="fixed inset-0 z-40" onClick={() => { setCityDropdown(false); setUserDropdown(false); setNotifDropdown(false); }} />
       )}

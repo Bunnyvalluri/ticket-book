@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { motion } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import MovieCard from '../movies/MovieCard.jsx';
 
@@ -8,41 +7,40 @@ export default function MovieSlider({ movies = [] }) {
 
   const scroll = (dir) => {
     const el = scrollRef.current;
-    if (el) el.scrollBy({ left: dir * 300, behavior: 'smooth' });
+    if (el) el.scrollBy({ left: dir * 320, behavior: 'smooth' });
   };
 
   if (!movies.length) return null;
 
   return (
-    <div className="relative group">
-      {/* Left arrow */}
+    <div className="relative group my-4">
+      {/* Scroll Left Button */}
       <button
         onClick={() => scroll(-1)}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-xl"
-        style={{ background: '#1a1a2e', border: '1px solid #2d2d4a', color: '#f0f0f8' }}
+        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-11 h-11 rounded-2xl glass-card flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all shadow-2xl hover:border-purple-500/50"
       >
-        <FiChevronLeft size={18} />
+        <FiChevronLeft size={20} />
       </button>
 
+      {/* Horizontal Carousel */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-4"
+        className="flex gap-5 overflow-x-auto pb-6 pt-2 px-1 scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {movies.map((movie, i) => (
-          <div key={movie.id} className="flex-shrink-0" style={{ width: '180px' }}>
+          <div key={movie.id || i} className="shrink-0 w-[200px] sm:w-[220px]">
             <MovieCard movie={movie} index={i} />
           </div>
         ))}
       </div>
 
-      {/* Right arrow */}
+      {/* Scroll Right Button */}
       <button
         onClick={() => scroll(1)}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-xl"
-        style={{ background: '#1a1a2e', border: '1px solid #2d2d4a', color: '#f0f0f8' }}
+        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-11 h-11 rounded-2xl glass-card flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all shadow-2xl hover:border-purple-500/50"
       >
-        <FiChevronRight size={18} />
+        <FiChevronRight size={20} />
       </button>
     </div>
   );

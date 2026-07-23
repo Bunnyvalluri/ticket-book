@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { bookingAPI } from '../services/api.js';
 import { useBookingStore } from '../store/index.js';
 import toast from 'react-hot-toast';
-import { FiLoader, FiAlertCircle } from 'react-icons/fi';
+import { FiLoader, FiShield, FiCreditCard, FiCheckCircle, FiLock, FiSmartphone, FiGlobe } from 'react-icons/fi';
 
-// Load Razorpay script
 const loadRazorpay = () =>
   new Promise((resolve) => {
     if (window.Razorpay) return resolve(true);
@@ -24,13 +23,13 @@ export default function Payment() {
   const { clearBooking } = useBookingStore();
   const [loading, setLoading] = useState(false);
   const [demoProcessing, setDemoProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('UPI'); // UPI, CARD, NETBANKING
 
   useEffect(() => {
     if (!booking || !order) {
       navigate('/');
       return;
     }
-    initPayment();
   }, []);
 
   const initPayment = async () => {
@@ -38,12 +37,12 @@ export default function Payment() {
 
     if (isDemoMode || !razorpayKeyId) {
       setLoading(false);
-      return; // Show demo button
+      return;
     }
 
     const loaded = await loadRazorpay();
     if (!loaded) {
-      toast.error('Payment gateway failed to load');
+      toast.error('Razorpay SDK failed to load');
       setLoading(false);
       return;
     }
@@ -52,7 +51,7 @@ export default function Payment() {
       key: razorpayKeyId,
       amount: order.amount * 100,
       currency: order.currency || 'INR',
-      name: 'CineMax',
+      name: 'CineMax Ticketing',
       description: `Booking ${booking.bookingNumber}`,
       image: '/favicon.ico',
       order_id: order.id,
@@ -69,7 +68,7 @@ export default function Payment() {
       },
       theme: {
         color: '#7c3aed',
-        backdrop_color: '#0a0a12',
+        backdrop_color: '#070710',
       },
       modal: {
         ondismiss: () => {
@@ -95,100 +94,207 @@ export default function Payment() {
       clearBooking();
       navigate('/booking/success', { state: { booking: res.data.data.booking } });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment confirmation failed');
+      toast.error(err.response?.data?.message || 'Payment verification failed');
       navigate('/booking/failed', { state: { booking } });
     }
   };
 
-  const handleDemoPayment = async () => {
+  const handleDemoConfirm = async () => {
     setDemoProcessing(true);
-    try {
-      // Simulate demo payment
-      const fakePaymentId = `pay_demo_${Date.now()}`;
-      const fakeSignature = `sig_demo_${Date.now()}`;
+    setTimeout(async () => {
+      try {
+        const fakeOrderId = 'order_demo_' + Date.now();
+        const fakePaymentId = 'pay_demo_' + Date.now();
+        const fakeSig = 'sig_demo_' + Date.now();
 
-      await confirmPayment(order.id, fakePaymentId, fakeSignature);
-    } catch {
-      toast.error('Demo payment failed');
-    } finally {
-      setDemoProcessing(false);
-    }
+        const res = await bookingAPI.confirmPayment({
+          bookingId: booking.id,
+          razorpayOrderId: fakeOrderId,
+          razorpayPaymentId: fakePaymentId,
+          razorpaySignature: fakeSig,
+        });
+
+        clearBooking();
+        toast.success('🎉 Demo payment successful!');
+        navigate('/booking/success', { state: { booking: res.data.data.booking } });
+      } catch (err) {
+        toast.error('Payment processing failed');
+        setDemoProcessing(false);
+      }
+    }, 1500);
   };
 
-  if (!booking) return null;
+  if (!booking || !order) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full mx-4"
-      >
-        <div className="card p-8 text-center">
-          {loading ? (
-            <>
-              <div className="text-5xl mb-4">💳</div>
-              <h2 className="text-2xl font-bold mb-2" style={{ color: '#f0f0f8' }}>Opening Payment Gateway</h2>
-              <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mt-6" />
-            </>
-          ) : (isDemoMode || !razorpayKeyId) ? (
-            <>
-              <div className="text-5xl mb-4">🎭</div>
-              <h2 className="text-2xl font-bold mb-2" style={{ color: '#f0f0f8' }}>Demo Payment Mode</h2>
-              <p className="text-sm mb-6" style={{ color: '#606080' }}>
-                Razorpay credentials not configured. This is a demo payment.
-              </p>
-
-              <div className="mb-6 p-4 rounded-xl text-left" style={{ background: '#1e1e35', border: '1px solid #2d2d4a' }}>
-                <div className="flex justify-between text-sm mb-2">
-                  <span style={{ color: '#a0a0c0' }}>Booking ID</span>
-                  <span style={{ color: '#f0f0f8' }}>{booking.bookingNumber}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span style={{ color: '#a0a0c0' }}>Amount</span>
-                  <span className="font-bold text-lg gradient-text">₹{order.amount?.toFixed(0)}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 p-3 rounded-xl mb-6"
-                style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
-                <FiAlertCircle className="text-yellow-400" size={16} />
-                <p className="text-xs" style={{ color: '#fbbf24' }}>
-                  This simulates a real payment. In production, Razorpay handles actual transactions.
-                </p>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleDemoPayment}
-                disabled={demoProcessing}
-                className="btn-primary w-full py-4 flex items-center justify-center gap-2"
-              >
-                {demoProcessing ? <FiLoader className="animate-spin" size={18} /> : '✅'}
-                {demoProcessing ? 'Processing...' : 'Simulate Successful Payment'}
-              </motion.button>
-
-              <button
-                onClick={() => navigate('/booking/failed', { state: { booking } })}
-                className="w-full mt-3 text-sm"
-                style={{ color: '#ef4444' }}
-              >
-                Simulate Payment Failure
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="text-5xl mb-4">🔄</div>
-              <h2 className="text-xl font-bold" style={{ color: '#f0f0f8' }}>Payment Window Opened</h2>
-              <p className="text-sm mt-2" style={{ color: '#606080' }}>Complete your payment in the Razorpay window</p>
-              <button onClick={initPayment} className="btn-primary mt-6 px-6 py-3">
-                Reopen Payment
-              </button>
-            </>
-          )}
+    <div className="min-h-screen py-10 bg-[#070710] pb-24">
+      <div className="container-app max-w-4xl">
+        
+        {/* Wizard Steps Bar */}
+        <div className="flex items-center justify-center gap-3 mb-10 text-xs font-bold">
+          <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+            <FiCheckCircle size={12} /> 1. Seats
+          </span>
+          <span className="text-slate-600">→</span>
+          <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+            <FiCheckCircle size={12} /> 2. Summary
+          </span>
+          <span className="text-slate-600">→</span>
+          <span className="px-3.5 py-1.5 rounded-full bg-purple-600/30 text-purple-300 border border-purple-500/40 flex items-center gap-1.5 glow-purple">
+            3. Payment
+          </span>
+          <span className="text-slate-600">→</span>
+          <span className="px-3.5 py-1.5 rounded-full glass-card text-slate-500">
+            4. Ticket Pass
+          </span>
         </div>
-      </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          {/* Payment Option Selector & Card Mockup */}
+          <div className="md:col-span-2 space-y-6">
+            <div className="glass-card p-6 md:p-8 rounded-3xl border border-white/15 space-y-6 shadow-2xl">
+              
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <h2 className="text-xl font-black text-white flex items-center gap-2">
+                    <FiLock className="text-purple-400" />
+                    Secure Checkout
+                  </h2>
+                  <p className="text-xs text-slate-400">Order #{booking.bookingNumber}</p>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-bold border border-emerald-500/20">
+                  🔒 256-Bit SSL Encrypted
+                </span>
+              </div>
+
+              {/* Payment Tabs */}
+              <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/10">
+                {[
+                  { id: 'UPI', label: 'UPI / QR', icon: FiSmartphone },
+                  { id: 'CARD', label: 'Cards', icon: FiCreditCard },
+                  { id: 'NETBANKING', label: 'Net Banking', icon: FiGlobe },
+                ].map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    onClick={() => setPaymentMethod(id)}
+                    className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                      paymentMethod === id
+                        ? 'gradient-bg text-white shadow-lg'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Icon size={14} />
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Card Visual Mockup Preview */}
+              {paymentMethod === 'CARD' && (
+                <div className="p-6 rounded-2xl gradient-bg-blue text-white shadow-2xl relative overflow-hidden space-y-6 border border-white/20">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-mono tracking-widest uppercase">CINEMAX PASS CARD</span>
+                    <span className="font-black italic text-sm">VISA</span>
+                  </div>
+                  <div className="text-lg font-mono tracking-widest py-2">
+                    •••• •••• •••• 4242
+                  </div>
+                  <div className="flex justify-between items-end text-xs font-mono">
+                    <div>
+                      <p className="text-[9px] uppercase opacity-75">Card Holder</p>
+                      <p className="font-bold">{booking.user?.firstName} {booking.user?.lastName}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase opacity-75">Expires</p>
+                      <p className="font-bold">12/28</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === 'UPI' && (
+                <div className="p-6 rounded-2xl glass-card border border-white/10 text-center space-y-3">
+                  <div className="flex justify-center gap-3 py-2">
+                    <span className="px-3 py-1.5 rounded-xl bg-purple-600/20 text-purple-300 text-xs font-bold border border-purple-500/30">Google Pay</span>
+                    <span className="px-3 py-1.5 rounded-xl bg-blue-600/20 text-blue-300 text-xs font-bold border border-blue-500/30">PhonePe</span>
+                    <span className="px-3 py-1.5 rounded-xl bg-cyan-600/20 text-cyan-300 text-xs font-bold border border-cyan-500/30">Paytm UPI</span>
+                  </div>
+                  <p className="text-xs text-slate-400">Scan QR code or click pay to auto-route to your preferred UPI app.</p>
+                </div>
+              )}
+
+              {paymentMethod === 'NETBANKING' && (
+                <div className="p-6 rounded-2xl glass-card border border-white/10 text-center space-y-2">
+                  <p className="text-xs text-slate-300 font-bold">Supported Major Banks:</p>
+                  <p className="text-xs text-slate-400">HDFC Bank, ICICI Bank, SBI, Axis Bank, Kotak Mahindra</p>
+                </div>
+              )}
+
+              {/* Confirm Action Button */}
+              <div className="pt-2">
+                {isDemoMode || !razorpayKeyId ? (
+                  <button
+                    onClick={handleDemoConfirm}
+                    disabled={demoProcessing}
+                    className="btn-primary w-full py-4 text-xs font-extrabold rounded-2xl flex items-center justify-center gap-2 shadow-2xl glow-purple"
+                  >
+                    {demoProcessing ? (
+                      <>
+                        <FiLoader className="animate-spin" size={16} />
+                        <span>Simulating Payment Authorization...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiCheckCircle size={16} />
+                        <span>Complete Demo Payment (₹{booking.totalAmount.toFixed(0)})</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={initPayment}
+                    disabled={loading}
+                    className="btn-primary w-full py-4 text-xs font-extrabold rounded-2xl flex items-center justify-center gap-2 shadow-2xl glow-purple"
+                  >
+                    {loading ? (
+                      <>
+                        <FiLoader className="animate-spin" size={16} />
+                        <span>Launching Razorpay...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiCreditCard size={16} />
+                        <span>Pay via Razorpay (₹{booking.totalAmount.toFixed(0)})</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </div>
+
+          {/* Right Summary Sidebar */}
+          <div className="space-y-6">
+            <div className="glass-card p-6 rounded-3xl border border-white/15 space-y-4 shadow-xl">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-white/10 pb-3">Booking Overview</h3>
+              
+              <div className="space-y-2 text-xs text-slate-300">
+                <p className="font-black text-white text-sm">{booking.show?.movie?.title}</p>
+                <p className="text-slate-400">{booking.show?.screen?.theatre?.name}</p>
+                <p className="text-purple-300 font-bold">{booking.seats?.length} Seat(s) Reserved</p>
+                <div className="border-t border-white/10 pt-3 flex justify-between font-extrabold text-white text-base">
+                  <span>Total Due</span>
+                  <span className="gradient-text font-black">₹{booking.totalAmount.toFixed(0)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </div>
   );
 }
