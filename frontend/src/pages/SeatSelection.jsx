@@ -193,34 +193,70 @@ export default function SeatSelection() {
   );
 
   return (
-    <div className="min-h-screen pb-36 bg-[#070710]">
+    <div className="min-h-screen pb-36 bg-[#070710] text-slate-100">
       
-      {/* Sticky Header Bar */}
-      <div className="glass sticky top-16 z-30 py-3 border-b border-white/10">
+      {/* Top Header Bar */}
+      <header className="bg-slate-900/90 border-b border-slate-800 py-3.5 px-6 backdrop-blur-xl sticky top-0 z-30">
         <div className="container-app flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center text-white font-black shadow-lg glow-purple">
+              🍿
+            </div>
+            <span className="text-xl font-black tracking-wider text-white uppercase font-sans">
+              TICKET <span className="gradient-text">BOX</span>
+            </span>
+          </div>
+
+          {/* User / Logout Action */}
+          <div className="flex items-center gap-4">
+            {timeLeft && (
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border backdrop-blur-md ${
+                timeLeft < 120 
+                  ? 'bg-red-500/20 text-red-400 border-red-500/40 animate-pulse' 
+                  : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+              }`}>
+                <FiClock size={13} />
+                <span>Timer: {formatTime(timeLeft)}</span>
+              </div>
+            )}
+            
+            <button
+              onClick={() => navigate('/login')}
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 transition-colors shadow-md"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="container-app py-8 space-y-8">
+        
+        {/* Title & Screen Indicator Header */}
+        <div className="border-b border-slate-800 pb-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <h1 className="font-extrabold text-base text-white flex items-center gap-2">
-              <FiFilm className="text-purple-400" />
-              {show.movie?.title}
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              {show.movie?.title || 'Full Movie Name'}
             </h1>
-            <p className="text-xs text-slate-400">
-              {show.screen?.theatre?.name} • {show.screen?.name} • {new Date(show.startTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+            <p className="text-xs text-slate-400 mt-1">
+              {show.screen?.theatre?.name} • {show.screen?.name || 'Screen 1'} • {new Date(show.startTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
             </p>
           </div>
 
-          {/* Timer Clock */}
-          {timeLeft && (
-            <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border backdrop-blur-md ${
-              timeLeft < 120 
-                ? 'bg-red-500/20 text-red-400 border-red-500/40 animate-pulse' 
-                : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-            }`}>
-              <FiClock size={14} />
-              <span>Seats Locked: {formatTime(timeLeft)}</span>
-            </div>
-          )}
+          {/* Screen this side Indicator */}
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase flex items-center justify-center gap-2">
+              <span className="w-12 h-px bg-slate-700" />
+              Screen this side
+              <span className="w-12 h-px bg-slate-700" />
+            </p>
+            {/* Screen Arc bar */}
+            <div className="w-64 h-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-full mx-auto mt-2 shadow-lg glow-purple" />
+          </div>
 
-          {/* Zoom Buttons */}
+          {/* Zoom Controls */}
           <div className="hidden sm:flex items-center gap-2">
             <button onClick={() => setZoom((z) => Math.max(0.6, z - 0.1))} className="p-2 rounded-xl glass-card text-slate-300 hover:text-white">
               <FiZoomOut size={16} />
@@ -231,157 +267,152 @@ export default function SeatSelection() {
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Screen & Seat Grid Container */}
-      <div className="container-app py-10 overflow-x-auto">
-        <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top center', transition: 'transform 0.25s ease' }}>
-          
-          {/* Curved 3D Cinema Screen Arc */}
-          <div className="screen-arc mx-auto max-w-xl" />
-
-          {/* Seat Layout Matrix */}
-          <div className="flex flex-col gap-2.5 items-center mt-6">
+        {/* Seat Matrix Area */}
+        <div className="overflow-x-auto py-4">
+          <div 
+            className="flex flex-col items-center gap-3 min-w-[640px]"
+            style={{ transform: `scale(${zoom})`, transformOrigin: 'top center', transition: 'transform 0.25s ease' }}
+          >
             {Object.entries(seatsByRow).map(([row, seats]) => (
-              <div key={row} className="flex items-center gap-3">
-                {/* Row label */}
-                <span className="w-6 text-center text-xs font-bold text-slate-500">{row}</span>
+              <div key={row} className="flex items-center justify-center gap-3.5">
+                {/* Row Label Left */}
+                <span className="w-6 text-center font-black text-sm text-slate-400">{row}</span>
 
-                {/* Seats */}
-                <div className="flex gap-2">
+                {/* Seat Rectangles */}
+                <div className="flex gap-2.5 sm:gap-3">
                   {seats.map((seat) => {
                     const status = getSeatStatus(seat);
-                    const seatColor = SEAT_TYPE_COLORS[seat.seatType] || '#64748b';
+                    const seatLabel = `${seat.row}${seat.number}`;
 
                     return (
                       <motion.button
                         key={seat.id}
-                        whileHover={status === 'available' ? { scale: 1.25, zIndex: 20 } : {}}
-                        whileTap={status === 'available' ? { scale: 0.9 } : {}}
+                        whileHover={status === 'available' ? { scale: 1.12, zIndex: 10 } : {}}
+                        whileTap={status === 'available' ? { scale: 0.95 } : {}}
                         onClick={() => handleSeatClick(seat)}
-                        title={`Row ${seat.row}${seat.number} • ${seat.seatType} • ₹${seat.price || SEAT_TYPE_PRICES[seat.seatType]}`}
-                        className={`relative w-7 h-6 rounded-t-lg text-[9px] font-extrabold flex items-center justify-center transition-all ${
-                          status === 'available'
-                            ? 'cursor-pointer hover:shadow-lg'
-                            : 'cursor-not-allowed'
+                        title={`Seat ${seatLabel} • ${seat.seatType} • ₹${seat.price || SEAT_TYPE_PRICES[seat.seatType] || 250}`}
+                        className={`w-14 sm:w-16 h-10 sm:h-11 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center transition-all duration-200 shadow-md ${
+                          status === 'selected'
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white ring-2 ring-pink-400 shadow-xl glow-purple scale-105'
+                            : status === 'booked'
+                            ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700/50 line-through'
+                            : status === 'locked'
+                            ? 'bg-amber-500/20 text-amber-400 cursor-not-allowed border border-amber-500/30'
+                            : 'bg-[#fed7aa] text-amber-950 hover:bg-[#fde68a] hover:shadow-lg border border-amber-300 cursor-pointer'
                         }`}
-                        style={{
-                          background:
-                            status === 'selected'
-                              ? 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)'
-                              : status === 'booked'
-                              ? 'rgba(239,68,68,0.15)'
-                              : status === 'locked'
-                              ? 'rgba(245,158,11,0.2)'
-                              : `${seatColor}20`,
-                          border: `1px solid ${
-                            status === 'selected'
-                              ? '#f472b6'
-                              : status === 'booked'
-                              ? 'rgba(239,68,68,0.35)'
-                              : status === 'locked'
-                              ? 'rgba(245,158,11,0.4)'
-                              : `${seatColor}50`
-                          }`,
-                          boxShadow: status === 'selected' ? '0 0 12px rgba(236,72,153,0.6)' : undefined
-                        }}
                       >
                         {status === 'selected' ? (
-                          <FiCheck size={11} className="text-white" />
+                          <div className="flex items-center gap-1">
+                            <FiCheck size={14} className="text-white" />
+                            <span>{seatLabel}</span>
+                          </div>
                         ) : (
-                          <span className="text-[9px] opacity-70 text-slate-300">{seat.number}</span>
+                          <span>{seatLabel}</span>
                         )}
                       </motion.button>
                     );
                   })}
                 </div>
 
-                {/* Row label right */}
-                <span className="w-6 text-center text-xs font-bold text-slate-500">{row}</span>
+                {/* Row Label Right */}
+                <span className="w-6 text-center font-black text-sm text-slate-400">{row}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Legend */}
-        <div className="mt-12 flex flex-wrap justify-center gap-6 glass-card p-4 rounded-2xl max-w-xl mx-auto border border-white/10">
+        <div className="mt-8 flex flex-wrap justify-center gap-6 glass-card p-4 rounded-2xl max-w-xl mx-auto border border-white/10">
           {[
-            { label: 'Available', color: 'rgba(30,30,55,0.8)', border: '#363660' },
-            { label: 'Selected', color: '#7c3aed', border: '#f472b6' },
-            { label: 'Booked', color: 'rgba(239,68,68,0.2)', border: 'rgba(239,68,68,0.4)' },
-            { label: 'Locked by someone', color: 'rgba(245,158,11,0.2)', border: 'rgba(245,158,11,0.4)' },
-          ].map(({ label, color, border }) => (
-            <div key={label} className="flex items-center gap-2 text-xs text-slate-300 font-semibold">
-              <div className="w-5 h-4 rounded-t-md shadow-sm" style={{ background: color, border: `1px solid ${border}` }} />
+            { label: 'Available', bg: 'bg-[#fed7aa]', text: 'text-amber-950' },
+            { label: 'Selected', bg: 'bg-purple-600', text: 'text-white' },
+            { label: 'Booked', bg: 'bg-slate-800', text: 'text-slate-500' },
+            { label: 'Locked', bg: 'bg-amber-500/20', text: 'text-amber-400' },
+          ].map(({ label, bg, text }) => (
+            <div key={label} className="flex items-center gap-2 text-xs font-bold text-slate-300">
+              <div className={`w-6 h-5 rounded-md ${bg} ${text} text-[10px] font-black flex items-center justify-center shadow-sm`}>
+                A1
+              </div>
               <span>{label}</span>
             </div>
           ))}
         </div>
 
-        {/* Seat Tier Pricing Tags */}
-        <div className="mt-6 flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
+        {/* Seat Category Pricing Tags */}
+        <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto pt-2">
           {Object.entries(SEAT_TYPE_PRICES).map(([type, price]) => (
             <div
               key={type}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-card border text-xs font-bold"
-              style={{ borderColor: `${SEAT_TYPE_COLORS[type]}40` }}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl glass-card border border-white/10 text-xs font-bold"
             >
-              <div className="w-3 h-3 rounded-full" style={{ background: SEAT_TYPE_COLORS[type] }} />
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: SEAT_TYPE_COLORS[type] || '#f59e0b' }} />
               <span className="text-slate-300">{type}</span>
-              <span style={{ color: SEAT_TYPE_COLORS[type] }}>₹{price}</span>
+              <span className="text-purple-400">₹{price}</span>
             </div>
           ))}
         </div>
+
       </div>
 
-      {/* Floating Bottom Summary & Proceed Bar */}
-      <AnimatePresence>
-        {selectedSeats.length > 0 && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-white/10 py-4 shadow-2xl backdrop-blur-2xl"
-          >
-            <div className="container-app flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                  {selectedSeats.map((seat) => (
-                    <span
-                      key={seat.id}
-                      className="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-600/30 text-purple-300 border border-purple-500/40 flex items-center gap-1"
-                    >
-                      {seat.label || `${seat.row}${seat.number}`}
-                      <button onClick={() => deselectSeat(seat.id)} className="hover:text-pink-400 ml-0.5">
-                        <FiX size={11} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <p className="text-xs text-slate-400">
-                  Total: <span className="text-white font-extrabold text-base ml-1">₹{totalPrice.toFixed(0)}</span> ({selectedSeats.length} seat{selectedSeats.length > 1 ? 's' : ''})
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button onClick={handleClear} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200">
-                  Clear
-                </button>
-
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleProceed}
-                  className="btn-primary px-7 py-3 text-xs font-extrabold rounded-2xl flex items-center gap-2 shadow-2xl glow-purple"
-                >
-                  <span>Proceed to Payment</span>
-                  <FiArrowRight size={15} />
-                </motion.button>
-              </div>
+      {/* Bottom Seats Selection Status & Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 border-t border-slate-800 py-4 px-6 shadow-2xl backdrop-blur-2xl">
+        <div className="container-app flex items-center justify-between">
+          {selectedSeats.length === 0 ? (
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                No Seats Selected
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Tap on seat rectangles above (e.g. A1, A2...) to reserve your tickets.
+              </p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          ) : (
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-bold text-slate-400">Selected:</span>
+                {selectedSeats.map((seat) => (
+                  <span
+                    key={seat.id}
+                    className="px-2.5 py-1 rounded-lg text-xs font-black bg-purple-600/30 text-purple-200 border border-purple-500/40 flex items-center gap-1"
+                  >
+                    {seat.label || `${seat.row}${seat.number}`}
+                    <button onClick={() => deselectSeat(seat.id)} className="hover:text-pink-400 ml-0.5">
+                      <FiX size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-slate-400">
+                Total Price: <span className="text-white font-black text-lg ml-1">₹{totalPrice.toFixed(0)}</span> ({selectedSeats.length} seat{selectedSeats.length > 1 ? 's' : ''})
+              </p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            {selectedSeats.length > 0 && (
+              <button onClick={handleClear} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200">
+                Clear
+              </button>
+            )}
+
+            <motion.button
+              whileHover={selectedSeats.length > 0 ? { scale: 1.03 } : {}}
+              whileTap={selectedSeats.length > 0 ? { scale: 0.97 } : {}}
+              onClick={handleProceed}
+              disabled={selectedSeats.length === 0}
+              className={`px-7 py-3.5 text-xs font-black rounded-2xl flex items-center gap-2 shadow-2xl transition-all ${
+                selectedSeats.length > 0
+                  ? 'btn-primary glow-purple cursor-pointer'
+                  : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+              }`}
+            >
+              <span>Proceed to Payment</span>
+              <FiArrowRight size={16} />
+            </motion.button>
+          </div>
+        </div>
+      </div>
 
     </div>
   );
